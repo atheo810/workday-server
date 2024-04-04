@@ -35,22 +35,49 @@ class AuthenticatedSessionController extends Controller
             );
 
             return response()->json([
-                'id' => $user->value('uuid'),
-                'token' => $generateToken->plainTextToken,
-                'message' => 'Login successful. Welcome back!'
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Login successful. Welcome back!',
+                'data' => [
+                    'id' => $user->value('uuid'),
+                    'token' => $generateToken->plainTextToken,
+                ]
             ], 200);
         } catch (ValidationException $e) {
-            return response()->json(['message' => $e->getMessage()], 422);
+            return response()->json([
+                'status' => 'error',
+                'code' => 422,
+                'message' => $e->getMessage(),
+                'data' => null
+            ], 422);
         } catch (\Exception $e) {
-            return response()->json(['message' =>
-            'Something went wrong, please try again later'], 500);
+            return response()->json([
+                'status' => 'error',
+                'code' => 500,
+                'message' => 'Something went wrong, please try again later',
+                'data' => null
+            ], 500);
         }
     }
 
     public function destroy(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        try {
+            $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Logout successful.'], 200);
+            return response()->json([
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Logout successful. Goodbye!',
+                'data' => null
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 500,
+                'message' => 'Something went wrong, please try again later',
+                'data' => null
+            ], 500);
+        }
     }
 }
