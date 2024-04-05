@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::resource('/location-office', LocationOfficeController::class);
+Route::resource('/location-office', LocationOfficeController::class)->except([
+    'update',
+]);
 
 require __DIR__ . '/auth.php';
