@@ -8,4 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class LocationOffice extends Model
 {
     use HasFactory;
+
+    // Define the table name
+    protected $table = 'location_offices';
+    // Define the fill able columns
+    protected $fillable = [
+        'location_name',
+        'location_address',
+        'latitude',
+        'longitude',
+    ];
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LocationOfficeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
+Route::resource('/location-office', LocationOfficeController::class);
 
 require __DIR__ . '/auth.php';
