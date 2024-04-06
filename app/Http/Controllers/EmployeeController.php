@@ -14,9 +14,37 @@ use Illuminate\Validation\ValidationException;
 
 class EmployeeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public function getNotRegisteredEmployees()
+    {
+        try {
+            $employeeIds = User::pluck('employee_id')->filter();
+            $employees = Employee::whereNotIn('id', $employeeIds)->get(['id', 'uuid', 'fullname']);
+
+            if ($employees->isEmpty()) {
+                return response()->json([
+                    'code' => 404,
+                    'status' => 'error',
+                    'data' => [],
+                    'message' => 'Semua pegawai sudah terdaftar sebagai user'
+                ], 404);
+            }
+
+            return response()->json([
+                'code' => 200,
+                'status' => 'success',
+                'data' => $employees,
+                'message' => 'Pitemukan'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 500,
+                'status' => 'error',
+                'data' => null,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function getRoles()
     {
         try {
@@ -27,7 +55,7 @@ class EmployeeController extends Controller
                     'code' => 404,
                     'status' => 'error',
                     'data' => null,
-                    'message' => 'Data roles tidak ditemukan'
+                    'message' => 'Poles tidak ditemukan'
                 ], 404);
             }
 
@@ -35,7 +63,7 @@ class EmployeeController extends Controller
                 'code' => 200,
                 'status' => 'success',
                 'data' => $roles,
-                'message' => 'Data roles berhasil didapatkan'
+                'message' => 'Poles berhasil didapatkan'
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -65,7 +93,7 @@ class EmployeeController extends Controller
                     'code' => 404,
                     'status' => 'error',
                     'data' => null,
-                    'message' => 'Data pegawai tidak ditemukan'
+                    'message' => 'Pegawai tidak ditemukan'
                 ], 404);
             }
 
@@ -73,7 +101,7 @@ class EmployeeController extends Controller
                 'code' => 200,
                 'status' => 'success',
                 'data' => $employees,
-                'message' => 'Data pegawai berhasil didapatkan',
+                'message' => 'Pegawai berhasil didapatkan',
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -166,7 +194,7 @@ class EmployeeController extends Controller
                 'status' => 'success',
                 'code' => 201,
                 'data' => null,
-                'message' => 'Data pegawai berhasil ditambahkan'
+                'message' => 'Pegawai berhasil ditambahkan'
             ]);
         } catch (ValidationException $e) {
             return response()->json([
@@ -209,7 +237,7 @@ class EmployeeController extends Controller
                 'code' => 200,
                 'status' => 'success',
                 'data' => $currentEmployee,
-                'message' => 'Data pegawai berhasil didapatkan'
+                'message' => 'Pegawai berhasil didapatkan'
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -273,7 +301,7 @@ class EmployeeController extends Controller
                 'code' => 200,
                 'status' => 'success',
                 'data' => null,
-                'message' => 'Data pegawai berhasil diupdate'
+                'message' => 'Pegawai berhasil diupdate'
             ], 200);
         } catch (ValidationException $e) {
             return response()->json([
@@ -331,7 +359,7 @@ class EmployeeController extends Controller
                 'code' => 200,
                 'status' => 'success',
                 'data' => null,
-                'message' => 'Data pegawai berhasil dinonaktifkan'
+                'message' => 'Pegawai berhasil dinonaktifkan'
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

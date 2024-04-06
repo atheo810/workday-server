@@ -32,13 +32,13 @@ class UserSeeder extends Seeder
             'employee_id' => 2,
         ]);
 
-        User::create([
-            'id' => 3,
-            'uuid' => Cuid::make(),
-            'email' => 'security@gmail.com',
-            'password' => Hash::make('password'),
-            'account_status' => 'active',
-            'employee_id' => 3,
-        ]);
+        // User::create([
+        //     'id' => 3,
+        //     'uuid' => Cuid::make(),
+        //     'email' => 'security@gmail.com',
+        //     'password' => Hash::make('password'),
+        //     'account_status' => 'active',
+        //     'employee_id' => 3,
+        // ]);
     }
 }

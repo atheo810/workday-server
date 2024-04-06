@@ -12,29 +12,45 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('role:administrator');
-    }
-
     /**
      * Display a listing of the resource.
      */
+
     public function index()
     {
-        $users = DB::table('users')
-            ->join('employees', 'users.employee_id', '=', 'employees.id')
-            ->get([
-                'users.id', 'users.uuid', 'users.email', 'users.account_status',
-                'employees.fullname', 'employees.position', 'users.is_deleted'
-            ]);
+        try {
+            $users = DB::table('users')
+                ->join('employees', 'users.employee_id', '=', 'employees.id')
+                ->get([
+                    'users.id', 'users.uuid', 'users.email', 'users.account_status',
+                    'employees.fullname', 'employees.position', 'users.is_deleted'
+                ])
+                ->where('is_deleted', false)
+                ->where('account_status', 'active');
 
-        $employeeIds = User::pluck('employee_id')->filter();
-        $employees = Employee::whereNotIn('id', $employeeIds)->get(['id', 'uuid', 'fullname']);
+            if ($users->isEmpty()) {
+                return response()->json([
+                    'code' => 404,
+                    'status' => 'error',
+                    'data' => null,
+                    'message' => 'Data users tidak ditemukan'
+                ], 404);
+            }
 
-        $roles = DB::table('roles')->get(['id', 'name']);
-
-        return view('admin.user-management.index', compact('users', 'employees'));
+            return response()->json([
+                'code' => 200,
+                'status' => 'success',
+                'data' => $users,
+                'message' => 'Data users ditemukan'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 500,
+                'status' => 'error',
+                'data' => null,
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -42,27 +58,6 @@ class UserController extends Controller
      */
     public function create()
     {
-    }
-
-    public function getCurrentPosition($employeeId)
-    {
-        $currentPosition = Employee::where('id', $employeeId)->get(['position'])->first();
-
-        if (!$currentPosition) {
-            return response()->json([
-                'code' => 404,
-                'status' => 'error',
-                'data' => null,
-                'message' => 'Data tidak ditemukan'
-            ], 404);
-        }
-
-        return response()->json([
-            'code' => 200,
-            'status' => 'success',
-            'data' => $currentPosition,
-            'message' => 'Data ditemukan'
-        ], 200);
     }
 
     public function insertUser($data)
@@ -77,22 +72,22 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'uuid' => 'string',
-            'email' => 'required|string|email|unique:users',
-            'password' => 'required|string|min:8',
-            'employee_id' => 'required',
-            'account_status' => 'string|in:active,inactive'
-        ], [
-            'email.required' => 'Email harus diisi',
-            'email.email' => 'Email tidak valid',
-            'email.unique' => 'Email sudah terdaftar',
-            'password.required' => 'Password harus diisi',
-            'password.min' => 'Password minimal 8 karakter',
-            'employee_id.required' => 'Pegawai harus dipilih',
-        ]);
+        try {
+            $request->validate([
+                'uuid' => 'string',
+                'email' => 'required|string|email|unique:users',
+                'password' => 'required|string|min:8',
+                'employee_id' => 'required',
+                'account_status' => 'string|in:active,inactive'
+            ], [
+                'email.required' => 'Email harus diisi',
+                'email.email' => 'Email tidak valid',
+                'email.unique' => 'Email sudah terdaftar',
+                'password.required' => 'Password harus diisi',
+                'password.min' => 'Password minimal 8 karakter',
+                'employee_id.required' => 'Pegawai harus dipilih',
+            ]);
 
-        if ($validated) {
             DB::transaction(function () use ($request) {
                 $userId = $this->insertUser([
                     'uuid' => Cuid::make(),
@@ -105,6 +100,20 @@ class UserController extends Controller
                 $currentUser = User::find($userId);
                 $currentUser->assignRole($request->position);
             });
+
+            return response()->json([
+                'code' => 201,
+                'status' => 'success',
+                'data' => null,
+                'message' => 'User berhasil ditambahkan'
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 500,
+                'status' => 'error',
+                'data' => null,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -139,11 +148,6 @@ class UserController extends Controller
      */
     public function edit(string $userUuid)
     {
-        $currentUser = User::where('uuid', $userUuid)->get([
-            'uuid', 'email'
-        ])->first();
-
-        return view('admin.user-management.edit', compact('currentUser', 'userUuid'));
     }
 
     /*
@@ -151,28 +155,34 @@ class UserController extends Controller
      */
     public function update(Request $request, string $userUUID)
     {
-        $validated = $request->validate([
+        $request->validate([
             'email' => 'required|string|email',
         ], [
             'email.required' => 'Email harus diisi',
             'email.email' => 'Email tidak valid',
         ]);
 
-        if ($validated) {
-            $currentUser = User::where('uuid', $userUUID)->first();
+        $currentUser = User::where('uuid', $userUUID)->first();
 
-            if (!$currentUser) {
-                return back()->with('error', 'User tidak ditemukan');
-            }
-
-            $currentUser->update([
-                'email' => strtolower($request->email),
-            ]);
-
-            return redirect()
-                ->route('admin.manage-user')
-                ->with('success', 'User berhasil diubah!');
+        if (!$currentUser) {
+            return response()->json([
+                'code' => 404,
+                'status' => 'error',
+                'data' => null,
+                'message' => 'User tidak ditemukan'
+            ], 404);
         }
+
+        $currentUser->update([
+            'email' => strtolower($request->email),
+        ]);
+
+        return response()->json([
+            'code' => 200,
+            'status' => 'success',
+            'data' => null,
+            'message' => 'User berhasil diupdate'
+        ], 200);
     }
 
     /**
@@ -180,25 +190,49 @@ class UserController extends Controller
      */
     public function destroy(string $userUuid)
     {
-        User::where('uuid', $userUuid)->update([
-            'is_deleted' => true,
-            'account_status' => 'inactive',
-        ]);
+        try {
+            $currentUser = User::where('uuid', $userUuid)->first();
 
-        return redirect()
-            ->route('admin.manage-user')
-            ->with('success', 'User berhasil dihapus!');
+            if (!$currentUser) {
+                return response()->json([
+                    'code' => 404,
+                    'status' => 'error',
+                    'data' => null,
+                    'message' => 'User tidak ditemukan'
+                ], 404);
+            }
+
+            $currentUser->update([
+                'is_deleted' => true,
+                'account_status' => 'inactive',
+                'deleted_at' => now()
+            ]);
+
+            return response()->json([
+                'code' => 200,
+                'status' => 'success',
+                'data' => null,
+                'message' => 'User berhasil dinonaktifkan'
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 500,
+                'status' => 'error',
+                'data' => null,
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
-    public function recovery(string $userUuid)
-    {
-        User::where('uuid', $userUuid)->update([
-            'is_deleted' => false,
-            'account_status' => 'active',
-        ]);
+    // public function recovery(string $userUuid)
+    // {
+    //     User::where('uuid', $userUuid)->update([
+    //         'is_deleted' => false,
+    //         'account_status' => 'active',
+    //     ]);
 
-        return redirect()
-            ->route('admin.manage-user')
-            ->with('success', 'User berhasil direstore!');
-    }
+    //     return redirect()
+    //         ->route('admin.manage-user')
+    //         ->with('success', 'User berhasil direstore!');
+    // }
 }
