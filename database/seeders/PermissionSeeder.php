@@ -46,7 +46,10 @@ class PermissionSeeder extends Seeder
         $currentOwner = User::find(1);
         $currentAdmin = User::find(2);
 
+        $currentSecurity = User::find(3);
+
         $currentOwner->assignRole('owner');
         $currentAdmin->assignRole('administrator');
+        $currentSecurity->assignRole('security');
     }
 }

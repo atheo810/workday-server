@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -22,17 +23,23 @@ class AuthenticatedSessionController extends Controller
             ]);
 
             if (!Auth::attempt($credentials)) {
-                return response()->json(['message' => 'Invalid credentials'], 401);
+                return response()->json([
+                    'message' => 'Invalid credentials'
+                ], Response::HTTP_UNAUTHORIZED);
+            }
+
+            if (!auth()->user()->hasRole('administrator|owner')) {
+                return response()->json([
+                    'message' => 'Akses ditolak. Anda tidak memiliki izin untuk mengakses resource ini.'
+                ], Response::HTTP_FORBIDDEN);
             }
 
             $user = User::where('email', $credentials['email'])->first();
-
             $user->tokens()->delete();
 
-            $expiration = now()->addDay(1);
             $generateToken = $user->createToken(
                 name: $user->value('uuid'),
-                expiresAt: $expiration
+                expiresAt: now()->addDay(1)
             );
 
             return response()->json([
