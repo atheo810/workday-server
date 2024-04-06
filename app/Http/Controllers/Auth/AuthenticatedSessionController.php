@@ -24,7 +24,7 @@ class AuthenticatedSessionController extends Controller
 
             if (!Auth::attempt($credentials)) {
                 return response()->json([
-                    'message' => 'Invalid credentials'
+                    'message' => 'Kredensial tidak sesuai atau akun Anda telah dinonaktifkan. Silahkan coba lagi'
                 ], Response::HTTP_UNAUTHORIZED);
             }
 
@@ -35,8 +35,8 @@ class AuthenticatedSessionController extends Controller
             }
 
             $user = User::where('email', $credentials['email'])->first();
-            $user->tokens()->delete();
 
+            $user->tokens()->delete();
             $generateToken = $user->createToken(
                 name: $user->value('uuid'),
                 expiresAt: now()->addDay(1)
