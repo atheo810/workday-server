@@ -73,7 +73,7 @@ class EmployeeController extends Controller
                 'code' => 200,
                 'status' => 'success',
                 'data' => $employees,
-                'message' => 'Data pegawai berhasil didapatkan'
+                'message' => 'Data pegawai berhasil didapatkan',
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

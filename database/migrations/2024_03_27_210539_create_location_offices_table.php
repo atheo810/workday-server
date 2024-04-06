@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('location_offices', function (Blueprint $table) {
             $table->id();
             $table->string('location_name');
+            $table->string('location_address');
             $table->string('latitude');
             $table->string('longitude');
             $table->timestamps();
