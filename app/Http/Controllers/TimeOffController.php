@@ -37,7 +37,7 @@ class TimeOffController extends Controller
                 'code' => 200,
                 'status' => 'success',
                 'message' => 'Data cuti berhasil ditemukan.',
-                'data' => null,
+                'data' => $timeOff,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -67,7 +67,7 @@ class TimeOffController extends Controller
             return response()->json([
                 'code' => 200,
                 'status' => 'success',
-                'message' => 'File berhasil di upload.',
+                'message' => 'Dokumen cuti berhasil diupload.',
                 'data' => [
                     'url' => $base_url,
                 ],
@@ -190,6 +190,83 @@ class TimeOffController extends Controller
      */
     public function update(Request $request, string $uuid)
     {
+        return response()->json([
+            'code' => 200,
+            'status' => 'success',
+            'message' => 'Data cuti berhasil diupdate.',
+            'data' => $uuid,
+        ], 200);
+        try {
+            $request->validate([
+                'accepted_by' => 'required|integer',
+                'employee_id' => 'required|integer',
+                'title' => 'required|string',
+                'type' => 'required|in:annual,unpaid,sick_without_docs,sick_with_docs,holiday,special_permit',
+                'start_date' => 'required|date',
+                'end_date' => 'required|date',
+                'description' => 'required|string',
+                'document' => 'nullable|string',
+                'total_days' => 'required|integer',
+            ]);
+
+            $timeOff = TimeOff::where('uuid', $uuid)
+                ->update([
+                    'employee_id' => $request->employee_id,
+                    'accepted_by' => $request->accepted_by,
+                    'title' => $request->title,
+                    'type' => $request->type,
+                    'start_date' => $request->start_date,
+                    'end_date' => $request->end_date,
+                    'description' => $request->description,
+                    'document' => $request->document,
+                    'total_days' => $request->total_days,
+                ]);
+            if (!$timeOff) {
+                return response()->json([
+                    'code' => 404,
+                    'status' => 'error',
+                    'message' => 'Data cuti tidak ditemukan.',
+                    'data' => null,
+                ], 404);
+            }
+            return response()->json([
+                'code' => 200,
+                'status' => 'success',
+                'message' => 'Data cuti berhasil diupdate.',
+                'data' => null,
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 422,
+                'data' => null,
+                'message' => $e->getMessage()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 500,
+                'status' => 'error',
+                'data' => null,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(TimeOff $timeOff)
+    {
+        //
+    }
+
+    // Recovery Data
+    public function recovery(string $timeOff)
+    {
+    }
+
+    public function validateStatusTimeOff(Request $request, string $uuid)
+    {
         try {
             $request->validate([
                 'status' => 'required|in:approved,rejected,pending'
@@ -229,18 +306,5 @@ class TimeOffController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(TimeOff $timeOff)
-    {
-        //
-    }
-
-    // Recovery Data
-    public function recovery(string $timeOff)
-    {
     }
 }
