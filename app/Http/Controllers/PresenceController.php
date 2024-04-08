@@ -45,7 +45,7 @@ class PresenceController extends Controller
         }
     }
 
-    public function getEmployeePresence(string $employee_id)
+    public function getHistoryEmployeePresence(string $employee_id)
     {
         try {
             $presences = DB::table('presences')

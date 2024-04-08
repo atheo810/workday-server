@@ -28,29 +28,29 @@ Route::middleware(['auth:sanctum'])->group(function () {
             ->name('employee.not-registered-employees');
 
         // ============ *** EMPLOYEES *** ============
-        Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
-        Route::post('/employee', [EmployeeController::class, 'store'])->name('employees.store');
-        Route::get('/employee/{employee_id}', [EmployeeController::class, 'show'])->name('employees.show');
-        Route::patch('/employee/{employee_id}/update', [EmployeeController::class, 'update'])->name('employees.update');
-        Route::delete('/employee/{employee_id}/delete', [EmployeeController::class, 'destroy'])->name('employees.delete');
-        Route::post('/upload-file/employee', [EmployeeController::class, 'uploadFile'])->name('employee.upload-file');
+        Route::apiResource('employees', EmployeeController::class)->except([
+            'edit', 'create'
+        ]);
+        Route::post('/upload/employee', [EmployeeController::class, 'uploadFile'])->name('employee.upload-file');
 
         // ============ *** USERS *** ============
         Route::apiResource('/users', UserController::class)->except([
             'edit', 'create'
         ]);
 
-        // ============ *** EMPLOYEE PRESENCE *** ============
-        Route::post('/upload-file/presence/employee', [PresenceController::class, 'uploadFile'])->name('employee-presence.upload-file');
-        Route::get('/employee-presences/{employee_id}', [PresenceController::class, 'getEmployeePresence'])->name('employee-presence.index');
-
-        Route::post('/presence', [PresenceController::class, 'employeePresences'])->name('employee.presences');
-        Route::get('/presence/check/{presence_id}', [PresenceController::class, 'getCurrentPresencesEmployee'])->name('employee.current-presences');
-
         // ============ *** LOCATIONS OFFICES *** ============
         Route::apiResource('/location-office', LocationOfficeController::class)->except([
             'update'
         ]);
+    });
+
+    Route::middleware(['check.role:administrator,owner,head-machanic,mechanic,cleaner,office-boy,security'])->group(function () {
+        // ============ *** EMPLOYEE PRESENCE *** ============
+        Route::post('/upload/presence/employee', [PresenceController::class, 'uploadFile'])->name('employee-presence.upload-file');
+        Route::get('/history-presences/{employee_id}', [PresenceController::class, 'getHistoryEmployeePresence'])->name('employee.history.presence.index');
+
+        Route::post('/presence', [PresenceController::class, 'employeePresences'])->name('employee.presences');
+        Route::get('/presence/check/{presence_id}', [PresenceController::class, 'getCurrentPresencesEmployee'])->name('employee.current-presences');
     });
 });
 
