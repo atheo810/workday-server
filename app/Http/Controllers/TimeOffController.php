@@ -18,16 +18,21 @@ class TimeOffController extends Controller
     public function index()
     {
         try {
-            $timeOff = DB::table('time_offs')->select('id', 'uuid', 'accepted_by', 'title', 'type', 'start_date', 'end_date', 'description', 'document', 'status', 'total_days')->get() ?? [];
+            $timeOff = DB::table('time_offs')
+                ->get([
+                    'id', 'uuid', 'accepted_by', 'title', 'type', 'start_date',
+                    'end_date', 'description', 'document', 'status', 'total_days'
+                ]);
 
             if ($timeOff->isEmpty()) {
                 return response()->json([
                     'code' => 404,
                     'status' => 'error',
                     'message' => 'Tidak ada data cuti yang tersedia.',
-                    'data' => $timeOff,
+                    'data' => null,
                 ], 404);
             }
+
             return response()->json([
                 'code' => 200,
                 'status' => 'success',
@@ -42,8 +47,6 @@ class TimeOffController extends Controller
                 'data' => null,
             ], 500);
         }
-
-        //
     }
 
     public function uploadFile(Request $request)
@@ -58,6 +61,7 @@ class TimeOffController extends Controller
             $resultFile = $file ?
                 $file->storeAs('photos/employee-timeoff', "{$fileName}.{$file->extension()}")
                 : null;
+
             $base_url = Storage::url($resultFile);
 
             return response()->json([
@@ -101,12 +105,12 @@ class TimeOffController extends Controller
                 'end_date' => 'required|date',
                 'description' => 'required|string',
                 'document' => 'nullable|string',
-                'total_days' => 'required|numeric',
+                'total_days' => 'required|integer',
             ]);
 
             $uuid = Cuid::make();
 
-            $timeOff = TimeOff::create([
+            TimeOff::create([
                 'uuid' => $uuid,
                 'employee_id' => $request->employee_id,
                 'accepted_by' => $request->accepted_by,
@@ -123,7 +127,7 @@ class TimeOffController extends Controller
                 'code' => 201,
                 'status' => 'success',
                 'message' => 'Data cuti berhasil ditambahkan.',
-                'data' => $timeOff,
+                'data' => null,
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -149,14 +153,27 @@ class TimeOffController extends Controller
     {
         try {
             $timeOff = DB::table('time_offs')
-                ->select('id', 'uuid', 'accepted_by', 'title', 'type', 'start_date', 'end_date', 'description', 'document', 'status', 'total_days', 'created_at', 'updated_at', 'deleted_at')
-                ->where('uuid', $id)->first() ?? [];
+                ->get([
+                    'id', 'uuid', 'accepted_by', 'title', 'type', 'start_date',
+                    'end_date', 'description', 'document', 'status', 'total_days'
+                ])
+                ->where('uuid', $id)
+                ->first();
+
+            if (!$timeOff) {
+                return response()->json([
+                    'code' => 404,
+                    'status' => 'error',
+                    'message' => 'Data cuti tidak ditemukan.',
+                    'data' => null,
+                ], 404);
+            }
 
             return response()->json([
                 'code' => 200,
                 'status' => 'success',
                 'message' => 'Data cuti berhasil ditemukan.',
-                'data' => [$timeOff],
+                'data' => $timeOff,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -168,7 +185,6 @@ class TimeOffController extends Controller
         }
     }
 
-
     /**
      * Update the specified resource in storage.
      */
@@ -178,6 +194,7 @@ class TimeOffController extends Controller
             $request->validate([
                 'status' => 'required|in:approved,rejected,pending'
             ]);
+
             $timeOff = DB::table('time_offs')
                 ->where('uuid', $uuid)
                 ->update([

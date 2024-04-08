@@ -43,7 +43,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ]);
 
         // ============ *** EMPLOYEE PRESENCE *** ============
-        Route::post('/upload-file/presence/employee', [PresenceController::class, 'uploadFile'])->name('employee-presence.upload-file');
+        Route::post('/upload/presence/employee', [PresenceController::class, 'uploadFile'])->name('employee-presence.upload-file');
         Route::get('/employee-presences/{employee_id}', [PresenceController::class, 'getEmployeePresence'])->name('employee-presence.index');
 
         Route::post('/presence', [PresenceController::class, 'employeePresences'])->name('employee.presences');
@@ -55,11 +55,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ]);
 
         // ============ *** TIMEOFF OFFICES *** ============
-        Route::get('/time-off', [TimeOffController::class, 'index'])->name('time-off.index');
-        Route::get('/time-off/{uuid}', [TimeOffController::class, 'show'])->name('time-off.show');
-        Route::post('/time-off', [TimeOffController::class, 'store'])->name('time-off.store');
-        Route::post('/upload-file/time-off', [TimeOffController::class, 'uploadFile'])->name('time-off.upload-file');
-        Route::put('/time-off/{uuid}', [TimeOffController::class, 'update'])->name('time-off.update');
+        Route::apiResource('timeoff', TimeOffController::class)->except([
+            'create', 'edit'
+        ]);
+
+        Route::post('/upload/timeoff', [TimeOffController::class, 'uploadFile'])->name('time-off.upload-file');
     });
 });
 
