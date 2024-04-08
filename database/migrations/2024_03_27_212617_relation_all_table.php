@@ -22,7 +22,7 @@ return new class extends Migration
 
         Schema::table('time_offs', function (Blueprint $table) {
             $table->foreignId('employee_id')->after('uuid')->references('id')->on('employees');
-            $table->foreignId('accepted_by')->after('employee_id')->references('id')->on('employees');
+            $table->foreignId('accepted_by')->after('employee_id')->references('id')->on('users');
         });
     }
 

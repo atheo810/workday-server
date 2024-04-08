@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\EmployeeController;
+
+use App\Http\Controllers\TimeOffController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\UserController;
 
@@ -38,10 +40,24 @@ Route::middleware(['auth:sanctum'])->group(function () {
             'edit', 'create'
         ]);
 
+        // ============ *** EMPLOYEE PRESENCE *** ============
+        Route::post('/upload/presence/employee', [PresenceController::class, 'uploadFile'])->name('employee-presence.upload-file');
+        Route::get('/employee-presences/{employee_id}', [PresenceController::class, 'getEmployeePresence'])->name('employee-presence.index');
+
+        Route::post('/presence', [PresenceController::class, 'employeePresences'])->name('employee.presences');
+        Route::get('/presence/check/{presence_id}', [PresenceController::class, 'getCurrentPresencesEmployee'])->name('employee.current-presences');
+
         // ============ *** LOCATIONS OFFICES *** ============
         Route::apiResource('/location-office', LocationOfficeController::class)->except([
             'update'
         ]);
+
+        // ============ *** TIMEOFF OFFICES *** ============
+        Route::apiResource('timeoff', TimeOffController::class)->except([
+            'create', 'edit'
+        ]);
+
+        Route::post('/upload/timeoff', [TimeOffController::class, 'uploadFile'])->name('time-off.upload-file');
     });
 
     Route::middleware(['check.role:administrator,owner,head-machanic,mechanic,cleaner,office-boy,security'])->group(function () {
