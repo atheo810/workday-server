@@ -41,10 +41,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::apiResource('/users', UserController::class)->except([
             'edit', 'create'
         ]);
-        Route::apiResource('/time-off', TimeOffController::class)->except([
-            'destroy'
-        ]);
-        Route::post('/upload-file/time-off', [TimeOffController::class, 'uploadFile'])->name('time-off.upload-file');
 
         // ============ *** EMPLOYEE PRESENCE *** ============
         Route::post('/upload-file/presence/employee', [PresenceController::class, 'uploadFile'])->name('employee-presence.upload-file');
@@ -57,6 +53,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::apiResource('/location-office', LocationOfficeController::class)->except([
             'update'
         ]);
+
+        // ============ *** TIMEOFF OFFICES *** ============
+        Route::get('/time-off', [TimeOffController::class, 'index'])->name('time-off.index');
+        Route::get('/time-off/{uuid}', [TimeOffController::class, 'show'])->name('time-off.show');
+        Route::post('/time-off', [TimeOffController::class, 'store'])->name('time-off.store');
+        Route::post('/upload-file/time-off', [TimeOffController::class, 'uploadFile'])->name('time-off.upload-file');
+        Route::put('/time-off/{uuid}', [TimeOffController::class, 'update'])->name('time-off.update');
     });
 });
 

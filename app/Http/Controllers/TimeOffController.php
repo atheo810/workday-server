@@ -3,7 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\TimeOff;
+use CaliCastle\Cuid;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
+use PhpParser\Node\Stmt\TryCatch;
 
 class TimeOffController extends Controller
 {
@@ -12,47 +17,201 @@ class TimeOffController extends Controller
      */
     public function index()
     {
+        try {
+            $timeOff = DB::table('time_offs')->select('id', 'uuid', 'accepted_by', 'title', 'type', 'start_date', 'end_date', 'description', 'document', 'status', 'total_days')->get() ?? [];
+
+            if ($timeOff->isEmpty()) {
+                return response()->json([
+                    'code' => 404,
+                    'status' => 'error',
+                    'message' => 'Tidak ada data cuti yang tersedia.',
+                    'data' => $timeOff,
+                ], 404);
+            }
+            return response()->json([
+                'code' => 200,
+                'status' => 'success',
+                'message' => 'Data cuti berhasil ditemukan.',
+                'data' => null,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 500,
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'data' => null,
+            ], 500);
+        }
+
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function uploadFile(Request $request)
     {
-        //
+        try {
+            $request->validate([
+                'file' => 'required|file|mimes:pdf,jpeg,jpg,png|max:3072',
+            ]);
+
+            $file = $request->file('file');
+            $fileName = Cuid::make();
+            $resultFile = $file ?
+                $file->storeAs('photos/employee-timeoff', "{$fileName}.{$file->extension()}")
+                : null;
+            $base_url = Storage::url($resultFile);
+
+            return response()->json([
+                'code' => 200,
+                'status' => 'success',
+                'message' => 'File berhasil di upload.',
+                'data' => [
+                    'url' => $base_url,
+                ],
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 422,
+                'data' => null,
+                'message' => $e->getMessage()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 500,
+                'status' => 'error',
+                'data' => null,
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
+
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $request->validate([
+                'accepted_by' => 'required|integer',
+                'employee_id' => 'required|integer',
+                'title' => 'required|string',
+                'type' => 'required|in:annual,unpaid,sick_without_docs,sick_with_docs,holiday,special_permit',
+                'start_date' => 'required|date',
+                'end_date' => 'required|date',
+                'description' => 'required|string',
+                'document' => 'nullable|string',
+                'total_days' => 'required|numeric',
+            ]);
+
+            $uuid = Cuid::make();
+
+            $timeOff = TimeOff::create([
+                'uuid' => $uuid,
+                'employee_id' => $request->employee_id,
+                'accepted_by' => $request->accepted_by,
+                'title' => $request->title,
+                'type' => $request->type,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
+                'description' => $request->description,
+                'document' => $request->document,
+                'total_days' => $request->total_days,
+            ]);
+
+            return response()->json([
+                'code' => 201,
+                'status' => 'success',
+                'message' => 'Data cuti berhasil ditambahkan.',
+                'data' => $timeOff,
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 422,
+                'data' => null,
+                'message' => $e->getMessage()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 500,
+                'status' => 'error',
+                'data' => null,
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(TimeOff $timeOff)
+    public function show(string $id)
     {
-        //
+        try {
+            $timeOff = DB::table('time_offs')
+                ->select('id', 'uuid', 'accepted_by', 'title', 'type', 'start_date', 'end_date', 'description', 'document', 'status', 'total_days', 'created_at', 'updated_at', 'deleted_at')
+                ->where('uuid', $id)->first() ?? [];
+
+            return response()->json([
+                'code' => 200,
+                'status' => 'success',
+                'message' => 'Data cuti berhasil ditemukan.',
+                'data' => [$timeOff],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 500,
+                'status' => 'error',
+                'data' => null,
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(TimeOff $timeOff)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, TimeOff $timeOff)
+    public function update(Request $request, string $uuid)
     {
-        //
+        try {
+            $request->validate([
+                'status' => 'required|in:approved,rejected,pending'
+            ]);
+            $timeOff = DB::table('time_offs')
+                ->where('uuid', $uuid)
+                ->update([
+                    'status' => $request->status,
+                ]);
+            if (!$timeOff) {
+                return response()->json([
+                    'code' => 404,
+                    'status' => 'error',
+                    'message' => 'Data cuti tidak ditemukan.',
+                    'data' => null,
+                ], 404);
+            }
+            return response()->json([
+                'code' => 200,
+                'status' => 'success',
+                'message' => 'Data cuti berhasil diupdate.',
+                'data' => $timeOff,
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 422,
+                'data' => null,
+                'message' => $e->getMessage()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 500,
+                'status' => 'error',
+                'data' => null,
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -61,5 +220,10 @@ class TimeOffController extends Controller
     public function destroy(TimeOff $timeOff)
     {
         //
+    }
+
+    // Recovery Data
+    public function recovery(string $timeOff)
+    {
     }
 }
