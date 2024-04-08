@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\TimeOffController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -38,6 +39,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::apiResource('/users', UserController::class)->except([
             'edit', 'create'
         ]);
+        Route::apiResource('/time-off', TimeOffController::class)->except([
+            'destroy'
+        ]);
+        Route::post('/upload-file/time-off', [TimeOffController::class, 'uploadFile'])->name('time-off.upload-file');
 
         // ============ *** LOCATIONS OFFICES *** ============
         Route::apiResource('/location-office', LocationOfficeController::class)->except([
