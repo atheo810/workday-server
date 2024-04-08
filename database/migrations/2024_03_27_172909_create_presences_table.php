@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('presences', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->index()->unique();
-            $table->timestamp('clock_in');
-            $table->timestamp('clock_out')->nullable();
+            $table->time('clock_in');
+            $table->time('clock_out')->nullable();
             $table->string('ip_address')->nullable();
             $table->enum('device', ['web', 'android', 'ios'])->default('web');
             $table->string('latitude_in');
@@ -26,7 +26,8 @@ return new class extends Migration
             $table->integer('distance_out')->nullable();
             $table->string('photo_in')->nullable();
             $table->string('photo_out')->nullable();
-            $table->integer('presence_by');
+            $table->date('presence_date');
+            // $table->integer('presence_by');
             $table->timestamps();
             $table->softDeletes();
         });

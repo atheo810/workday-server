@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -22,7 +23,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::middleware(['check.role:administrator,owner'])->group(function () {
         // ============ *** GENERAL *** ============
-        Route::post('/upload-file/employee', [EmployeeController::class, 'uploadFile'])->name('employee.upload-file');
         Route::get('/roles', [EmployeeController::class, 'getRoles'])->name('employee.roles');
         Route::get('/not-registered-employees', [EmployeeController::class, 'getNotRegisteredEmployees'])
             ->name('employee.not-registered-employees');
@@ -33,11 +33,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/employee/{employee_id}', [EmployeeController::class, 'show'])->name('employees.show');
         Route::patch('/employee/{employee_id}/update', [EmployeeController::class, 'update'])->name('employees.update');
         Route::delete('/employee/{employee_id}/delete', [EmployeeController::class, 'destroy'])->name('employees.delete');
+        Route::post('/upload-file/employee', [EmployeeController::class, 'uploadFile'])->name('employee.upload-file');
 
         // ============ *** USERS *** ============
         Route::apiResource('/users', UserController::class)->except([
             'edit', 'create'
         ]);
+
+        // ============ *** EMPLOYEE PRESENCE *** ============
+        Route::post('/upload-file/presence/employee', [PresenceController::class, 'uploadFile'])->name('employee-presence.upload-file');
+        Route::get('/employee-presences/{employee_id}', [PresenceController::class, 'getEmployeePresence'])->name('employee-presence.index');
+
+        Route::post('/presence', [PresenceController::class, 'employeePresences'])->name('employee.presences');
+        Route::get('/presence/check/{presence_id}', [PresenceController::class, 'getCurrentPresencesEmployee'])->name('employee.current-presences');
 
         // ============ *** LOCATIONS OFFICES *** ============
         Route::apiResource('/location-office', LocationOfficeController::class)->except([

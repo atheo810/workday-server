@@ -16,7 +16,8 @@ return new class extends Migration
         });
 
         Schema::table('presences', function (Blueprint $table) {
-            $table->foreignId('employee_id')->after('id')->references('id')->on('employees');
+            $table->foreignUuid('employee_id')->after('id')->references('uuid')->on('employees');
+            $table->foreignId('presence_by')->after('presence_date')->references('id')->on('users');
         });
 
         Schema::table('time_offs', function (Blueprint $table) {
