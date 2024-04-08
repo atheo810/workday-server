@@ -143,6 +143,13 @@ class EmployeeController extends Controller
                 ],
                 'message' => 'File berhasil di upload'
             ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'code' => 422,
+                'status' => 'error',
+                'data' => null,
+                'message' => $e->getMessage()
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'code' => 500,
