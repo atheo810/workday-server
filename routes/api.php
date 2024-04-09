@@ -9,6 +9,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\TimeOffController;
 use App\Http\Controllers\PresenceController;
 use App\Http\Controllers\UserController;
+use App\Models\TimeOff;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,6 +68,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::post('/presence', [PresenceController::class, 'employeePresences'])->name('employee.presences');
         Route::get('/presence/check/{presence_id}', [PresenceController::class, 'getCurrentPresencesEmployee'])->name('employee.current-presences');
+
+        // ============ *** RECAP PRESENCE *** ============
+        Route::post('/recap-presence/all', [PresenceController::class, 'recapEmployeePresence'])->name('recap-presence.employee.all');
+        Route::get('/recap-presence/{employee_id}', [PresenceController::class, 'recapEmployeePresenceById'])->name('recap-presence.employee');
     });
 });
 

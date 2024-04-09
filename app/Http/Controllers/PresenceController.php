@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\LocationOffice;
 use App\Models\Presence;
 use CaliCastle\Cuid;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -264,7 +265,102 @@ class PresenceController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function recapEmployeePresence(Request $request)
     {
+        $monthTemplate = [
+            "", "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+        ];
+
+        try {
+            $request->validate([
+                'start_date' => 'required|date_format:Y-m-d',
+                'end_date' => 'required|date_format:Y-m-d',
+            ]);
+
+            $parseStartDate = Carbon::parse($request->start_date);
+            $parseEndDate = Carbon::parse($request->end_date);
+
+            $startDay = $parseStartDate->day;
+            $endDay = $parseEndDate->day;
+
+            $startMonth = $parseStartDate->month;
+            $endMonth = $parseEndDate->month;
+
+
+
+            return response()->json([
+                'TEST' => $monthTemplate[$startMonth],
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'code' => 422,
+                'status' => 'error',
+                'data' => null,
+                'message' => $e->getMessage(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 500,
+                'status' => 'error',
+                'data' => null,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function recapEmployeePresenceById(Request $request, string $employeeId)
+    {
+        $monthTemplate = [
+            "", "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+        ];
+
+        try {
+            $currentDateNow = date('Y-m-d');
+            $currentMonthNow = date('m');
+            $currentYearNow = date('Y');
+
+            $presenceNow = DB::table('presences')
+                ->where('employee_id', $employeeId)
+                ->where('presence_date', $currentDateNow)
+                ->first();
+
+            $historyPresenceByMonth = DB::table('presences')
+                ->where('employee_id', $employeeId)
+                ->whereRaw('MONTH(presence_date)="' . $currentMonthNow . '"')
+                ->whereRaw('YEAR(presence_date)="' . $currentYearNow . '"')
+                ->orderBy('presence_date')
+                ->get();
+
+            $recapPresence = DB::table('presence');
+
+            if ($historyPresenceByMonth->isEmpty()) {
+                return response()->json([
+                    'code' => 404,
+                    'status' => 'error',
+                    'data' => null,
+                    'message' => 'Histori presensi pegawai tidak ditemukan',
+                ], 404);
+            }
+
+            return response()->json([
+                $historyPresenceByMonth
+            ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'code' => 422,
+                'status' => 'error',
+                'data' => null,
+                'message' => $e->getMessage(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 500,
+                'status' => 'error',
+                'data' => null,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
