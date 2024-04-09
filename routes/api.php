@@ -55,8 +55,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // ============ *** TIMEOFF OFFICES *** ============
         Route::apiResource('timeoff', TimeOffController::class)->except([
-            'create', 'edit'
+            'create', 'edit', 'update'
         ]);
+        Route::patch('/timeoff/{timeoff}', [TimeOffController::class, 'update'])->name('timeoff.update');
+        Route::put('/timeoff/{timeoff}', [TimeOffController::class, 'validateStatusTimeOff'])->name('timeoff.validate-status');
 
         Route::post('/upload/timeoff', [TimeOffController::class, 'uploadFile'])->name('time-off.upload-file');
     });

@@ -270,11 +270,7 @@ class TimeOffController extends Controller
                 'status' => 'required|in:approved,rejected,pending'
             ]);
 
-            $timeOff = DB::table('time_offs')
-                ->where('uuid', $uuid)
-                ->update([
-                    'status' => $request->status,
-                ]);
+            $timeOff = TimeOff::where('uuid', $uuid)->first();
             if (!$timeOff) {
                 return response()->json([
                     'code' => 404,
@@ -283,11 +279,23 @@ class TimeOffController extends Controller
                     'data' => null,
                 ], 404);
             }
+            $timeOff->update([
+                'status' => $request->status,
+            ]);
+
+            if (!$timeOff) {
+                return response()->json([
+                    'code' => 404,
+                    'status' => 'error',
+                    'message' => 'Data gagal di update.',
+                    'data' => null,
+                ], 404);
+            }
             return response()->json([
                 'code' => 200,
                 'status' => 'success',
                 'message' => 'Data cuti berhasil diupdate.',
-                'data' => $timeOff,
+                'data' => null,
             ], 200);
         } catch (ValidationException $e) {
             return response()->json([
