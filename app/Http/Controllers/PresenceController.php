@@ -281,16 +281,92 @@ class PresenceController extends Controller
             $parseStartDate = Carbon::parse($request->start_date);
             $parseEndDate = Carbon::parse($request->end_date);
 
+
             $startDay = $parseStartDate->day;
             $endDay = $parseEndDate->day;
 
             $startMonth = $parseStartDate->month;
             $endMonth = $parseEndDate->month;
 
+            $startYear = $parseStartDate->year;
+            $endYear = $parseEndDate->year;
 
+
+            // store all data in months
+            $months = [];
+            // same year logic
+            if ($startYear == $endYear) {
+                for ($month = $startMonth; $month <= $endMonth; $month++) {
+                    $historyPresenceByMonth = DB::table('presences')
+                        ->join('employees', 'presences.employee_id', '=', 'employees.uuid')
+                        ->join('users', 'presences.presence_by', '=', 'users.id')
+                        ->whereRaw('MONTH(presences.presence_date)="' . $month . '"')
+                        ->orderBy('employees.id', 'asc')
+                        ->select('presences.id', 'presences.employee_id', 'presences.uuid', 'presences.clock_in', 'presences.clock_out', 'presences.ip_address', 'presences.device', 'presences.latitude_in', 'presences.longitude_in', 'presences.latitude_out', 'presences.longitude_out', 'presences.distance_in', 'presences.distance_out', 'presences.photo_in', 'presences.photo_out', 'presences.presence_date', 'users.email as presence_by', 'employees.id as employee_id')
+                        ->get()
+                        ->groupBy('employee_id');
+
+                    // foreach timeoff
+                    foreach ($historyPresenceByMonth as $employeeId => $presences) {
+                        $timeOffs = DB::table('time_offs')
+                            ->where('time_offs.employee_id', $employeeId)
+                            ->whereRaw('YEAR(time_offs.start_date)="' . $startYear . '"')
+                            ->whereRaw('MONTH(time_offs.start_date)="' . $month . '"')
+                            ->join('users', 'time_offs.accepted_by', '=', 'users.id')
+                            ->select('time_offs.id', 'time_offs.uuid', 'users.email as accepted_by', 'time_offs.title', 'time_offs.type', 'time_offs.start_date', 'time_offs.end_date', 'time_offs.status', 'time_offs.description', 'time_offs.document', 'time_offs.status', 'time_offs.total_days')
+                            ->get();
+
+                        $months[] = [
+                            'employee_id' => $employeeId,
+                            'month' => $monthTemplate[$month],
+                            'year' => $startYear,
+                            'presences' => $presences,
+                            'time_offs' => $timeOffs
+                        ];
+                    }
+                }
+            } else {
+                for ($year = $startYear; $year <= $endYear; $year++) {
+                    $start = $year == $startYear ? $startMonth : 1;
+                    $end = $year == $endYear ? $endMonth : 12;
+
+                    for ($month = $start; $month <= $end; $month++) {
+                        $historyPresenceByMonth = DB::table('presences')
+                            ->whereRaw('YEAR(presences.presence_date)="' . $year . '"')
+                            ->whereRaw('MONTH(presences.presence_date)="' . $month . '"')
+                            ->join('employees', 'presences.employee_id', '=', 'employees.uuid')
+                            ->join('users', 'presences.presence_by', '=', 'users.id')
+                            ->orderBy('employees.id', 'asc')
+                            ->select('presences.id', 'presences.employee_id', 'presences.uuid', 'presences.clock_in', 'presences.clock_out', 'presences.ip_address', 'presences.device', 'presences.latitude_in', 'presences.longitude_in', 'presences.latitude_out', 'presences.longitude_out', 'presences.distance_in', 'presences.distance_out', 'presences.photo_in', 'presences.photo_out', 'presences.presence_date', 'users.email as presence_by', 'employees.id as employee_id')
+                            ->get()
+                            ->groupBy('employee_id');
+
+                        foreach ($historyPresenceByMonth as $employeeId => $presences) {
+                            $timeOffs = DB::table('time_offs')
+                                ->where('time_offs.employee_id', $employeeId)
+                                ->whereRaw('YEAR(time_offs.start_date)="' . $year . '"')
+                                ->whereRaw('MONTH(time_offs.start_date)="' . $month . '"')
+                                ->join('users', 'time_offs.accepted_by', '=', 'users.id')
+                                ->select('time_offs.id', 'time_offs.uuid', 'users.email as accepted_by', 'time_offs.title', 'time_offs.type', 'time_offs.start_date', 'time_offs.end_date', 'time_offs.status', 'time_offs.description', 'time_offs.document', 'time_offs.status', 'time_offs.total_days')
+                                ->get();
+
+                            $months[] = [
+                                'employee_id' => $employeeId,
+                                'month' => $monthTemplate[$month],
+                                'year' => $year,
+                                'presences' => $presences,
+                                'time_offs' => $timeOffs
+                            ];
+                        }
+                    }
+                }
+            }
 
             return response()->json([
-                'TEST' => $monthTemplate[$startMonth],
+                'status' => 'success',
+                'code' => 200,
+                'data' => $months,
+                'message' => 'Data presensi pegawai berhasil ditemukan',
             ]);
         } catch (ValidationException $e) {
             return response()->json([
@@ -317,35 +393,99 @@ class PresenceController extends Controller
         ];
 
         try {
-            $currentDateNow = date('Y-m-d');
-            $currentMonthNow = date('m');
-            $currentYearNow = date('Y');
+            $request->validate([
+                'start_date' => 'required|date_format:Y-m-d',
+                'end_date' => 'required|date_format:Y-m-d',
+            ]);
 
-            $presenceNow = DB::table('presences')
-                ->where('employee_id', $employeeId)
-                ->where('presence_date', $currentDateNow)
-                ->first();
+            $parseStartDate = Carbon::parse($request->start_date);
+            $parseEndDate = Carbon::parse($request->end_date);
 
-            $historyPresenceByMonth = DB::table('presences')
-                ->where('employee_id', $employeeId)
-                ->whereRaw('MONTH(presence_date)="' . $currentMonthNow . '"')
-                ->whereRaw('YEAR(presence_date)="' . $currentYearNow . '"')
-                ->orderBy('presence_date')
-                ->get();
 
-            $recapPresence = DB::table('presence');
+            $startDay = $parseStartDate->day;
+            $endDay = $parseEndDate->day;
 
-            if ($historyPresenceByMonth->isEmpty()) {
-                return response()->json([
-                    'code' => 404,
-                    'status' => 'error',
-                    'data' => null,
-                    'message' => 'Histori presensi pegawai tidak ditemukan',
-                ], 404);
+            $startMonth = $parseStartDate->month;
+            $endMonth = $parseEndDate->month;
+
+            $startYear = $parseStartDate->year;
+            $endYear = $parseEndDate->year;
+
+            $months = [];
+            if ($startYear == $endYear) {
+                for ($month = $startMonth; $month <= $endMonth; $month++) {
+                    $historyPresenceByMonth = DB::table('presences')
+                        ->join('employees', 'presences.employee_id', '=', 'employees.uuid')
+                        ->where('employees.uuid', $employeeId)
+                        ->whereRaw('MONTH(presences.presence_date)="' . $month . '"')
+                        ->orderBy('presences.presence_date', 'asc')
+                        ->select('presences.id', 'employees.uuid', 'employees.id as employee_id', 'presences.clock_in', 'presences.clock_out', 'presences.ip_address', 'presences.device', 'presences.latitude_in', 'presences.longitude_in', 'presences.latitude_out', 'presences.longitude_out', 'presences.distance_in', 'presences.distance_out', 'presences.photo_in', 'presences.photo_out')
+                        ->get()
+                        ->groupBy('precense_date');
+
+
+                    foreach ($historyPresenceByMonth as $history => $presences) {
+
+                        $timeOffs = DB::table('time_offs')
+                            ->join('users', 'time_offs.accepted_by', '=', 'users.id')
+                            ->join('employees', 'time_offs.employee_id', '=', 'employees.id')
+                            ->where('employees.uuid', $request->employee_id)
+                            ->whereRaw('YEAR(time_offs.start_date)="' . $startYear . '"')
+                            ->whereRaw('MONTH(time_offs.start_date)="' . $month . '"')
+                            ->select('time_offs.id', 'time_offs.uuid', 'users.email as accepted_by', 'time_offs.title', 'time_offs.type', 'time_offs.start_date', 'time_offs.end_date', 'time_offs.status', 'time_offs.description', 'time_offs.document', 'time_offs.status', 'time_offs.total_days')
+                            ->get();
+
+                        $months[] = [
+                            'year' => $startYear,
+                            'month' => $monthTemplate[$month],
+                            'presences' => $presences,
+                            'time_offs' => $timeOffs,
+                        ];
+                    }
+                }
+            } else {
+                for ($year = $startYear; $year <= $endYear; $year++) {
+                    $start = $year == $startYear ? $startMonth : 1;
+                    $end = $year == $endYear ? $endMonth : 12;
+
+                    for ($month = $start; $month <= $end; $month++) {
+                        $historyPresenceByMonth = DB::table('presences')
+                            ->join('employees', 'presences.employee_id', '=', 'employees.uuid')
+                            ->where('employees.uuid', $employeeId)
+                            ->whereRaw('Year(presences.presence_date)="' . $year . '"')
+                            ->whereRaw('MONTH(presences.presence_date)="' . $month . '"')
+                            ->orderBy('presences.presence_date', 'asc')
+                            ->select('presences.id', 'employees.uuid', 'employees.id as employee_id', 'presences.clock_in', 'presences.clock_out', 'presences.ip_address', 'presences.device', 'presences.latitude_in', 'presences.longitude_in', 'presences.latitude_out', 'presences.longitude_out', 'presences.distance_in', 'presences.distance_out', 'presences.photo_in', 'presences.photo_out')
+                            ->get()
+                            ->groupBy('precense_date');
+
+                        foreach ($historyPresenceByMonth as $history => $presences) {
+
+                            $timeOffs = DB::table('time_offs')
+                                ->join('users', 'time_offs.accepted_by', '=', 'users.id')
+                                ->join('employees', 'time_offs.employee_id', '=', 'employees.id')
+                                ->where('employees.uuid', $request->employee_id)
+                                ->whereRaw('YEAR(time_offs.start_date)="' . $year . '"')
+                                ->whereRaw('MONTH(time_offs.start_date)="' . $month . '"')
+                                ->select('time_offs.id', 'time_offs.uuid', 'users.email as accepted_by', 'time_offs.title', 'time_offs.type', 'time_offs.start_date', 'time_offs.end_date', 'time_offs.status', 'time_offs.description', 'time_offs.document', 'time_offs.status', 'time_offs.total_days')
+                                ->get();
+
+                            $months[] = [
+                                'year' => $year,
+                                'month' => $monthTemplate[$month],
+                                'presences' => $presences,
+                                'time_offs' => $timeOffs,
+                            ];
+                        }
+                    }
+                }
             }
 
             return response()->json([
-                $historyPresenceByMonth
+                'status' => 'success',
+                'code' => 200,
+                'data' => $months,
+                'message' => 'Data presensi pegawai berhasil ditemukan',
             ]);
         } catch (ValidationException $e) {
             return response()->json([

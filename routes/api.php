@@ -72,7 +72,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/presence/check/{presence_id}', [PresenceController::class, 'getCurrentPresencesEmployee'])->name('employee.current-presences');
 
         // ============ *** RECAP PRESENCE *** ============
-        Route::post('/recap-presence/all', [PresenceController::class, 'recapEmployeePresence'])->name('recap-presence.employee.all');
+        Route::get('/recap-presence/all', [PresenceController::class, 'recapEmployeePresence'])->name('recap-presence.employee.all');
         Route::get('/recap-presence/{employee_id}', [PresenceController::class, 'recapEmployeePresenceById'])->name('recap-presence.employee');
     });
 });
