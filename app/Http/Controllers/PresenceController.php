@@ -281,16 +281,11 @@ class PresenceController extends Controller
             $parseStartDate = Carbon::parse($request->start_date);
             $parseEndDate = Carbon::parse($request->end_date);
 
-
-            $startDay = $parseStartDate->day;
-            $endDay = $parseEndDate->day;
-
             $startMonth = $parseStartDate->month;
             $endMonth = $parseEndDate->month;
 
             $startYear = $parseStartDate->year;
             $endYear = $parseEndDate->year;
-
 
             // store all data in months
             $months = [];
@@ -400,10 +395,6 @@ class PresenceController extends Controller
 
             $parseStartDate = Carbon::parse($request->start_date);
             $parseEndDate = Carbon::parse($request->end_date);
-
-
-            $startDay = $parseStartDate->day;
-            $endDay = $parseEndDate->day;
 
             $startMonth = $parseStartDate->month;
             $endMonth = $parseEndDate->month;

@@ -23,6 +23,13 @@ use App\Models\TimeOff;
 */
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/health', function () {
+        return response()->json([
+            'message' => 'Uhuk, I am alive!',
+            'status' => 'OK',
+            'code' => 200,
+        ], 200);
+    });
 
     Route::middleware(['check.role:administrator,owner'])->group(function () {
         // ============ *** GENERAL *** ============
