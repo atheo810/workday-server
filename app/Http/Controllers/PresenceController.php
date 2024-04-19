@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\LocationOffice;
 use App\Models\Presence;
+use Barryvdh\DomPDF\Facade\Pdf;
 use CaliCastle\Cuid;
 use Carbon\Carbon;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -281,6 +283,9 @@ class PresenceController extends Controller
             $parseStartDate = Carbon::parse($request->start_date);
             $parseEndDate = Carbon::parse($request->end_date);
 
+            $startDay = $parseStartDate->day;
+            $endDay = $parseEndDate->day;
+
             $startMonth = $parseStartDate->month;
             $endMonth = $parseEndDate->month;
 
@@ -311,8 +316,13 @@ class PresenceController extends Controller
                             ->select('time_offs.id', 'time_offs.uuid', 'users.email as accepted_by', 'time_offs.title', 'time_offs.type', 'time_offs.start_date', 'time_offs.end_date', 'time_offs.status', 'time_offs.description', 'time_offs.document', 'time_offs.status', 'time_offs.total_days')
                             ->get();
 
+                        $employeeName = DB::table('employees')
+                            ->where('id', $employeeId)
+                            ->select('fullname')->get();
+
                         $months[] = [
                             'employee_id' => $employeeId,
+                            'employee_name' => $employeeName[0]->fullname,
                             'month' => $monthTemplate[$month],
                             'year' => $startYear,
                             'presences' => $presences,
@@ -345,8 +355,13 @@ class PresenceController extends Controller
                                 ->select('time_offs.id', 'time_offs.uuid', 'users.email as accepted_by', 'time_offs.title', 'time_offs.type', 'time_offs.start_date', 'time_offs.end_date', 'time_offs.status', 'time_offs.description', 'time_offs.document', 'time_offs.status', 'time_offs.total_days')
                                 ->get();
 
+                            $employeeName = DB::table('employees')
+                                ->where('id', $employeeId)
+                                ->select('fullname')->get();
+
                             $months[] = [
                                 'employee_id' => $employeeId,
+                                'employee_name' => $employeeName[0]->fullname,
                                 'month' => $monthTemplate[$month],
                                 'year' => $year,
                                 'presences' => $presences,
@@ -356,11 +371,22 @@ class PresenceController extends Controller
                     }
                 }
             }
+            $pdf = Pdf::loadView('presenceAll', ['months' => $months])->setPaper('a4', 'portrait');
+            $pdf->download()->getOriginalContent();
+            $dateTimeNow = new DateTime();
+            $dateNow = $dateTimeNow->format('Y-m-d_H-i-s');
+            Storage::disk('public')->put('presenceById_' . $dateNow . '_' .  $employeeId . '_' . '.pdf', $pdf->output());
+            $pdfpath = 'presenceById_' . $dateNow . '_all_employee' . '.pdf';
+            Storage::disk('public')->put($pdfpath, $pdf->output());
+            $pdfFullPath = asset('storage/' . $pdfpath);
+            $pdfpath = $pdfFullPath;
 
             return response()->json([
                 'status' => 'success',
                 'code' => 200,
-                'data' => $months,
+                'data' => [
+                    'pdf_path' => $pdfpath
+                ],
                 'message' => 'Data presensi pegawai berhasil ditemukan',
             ]);
         } catch (ValidationException $e) {
@@ -396,6 +422,9 @@ class PresenceController extends Controller
             $parseStartDate = Carbon::parse($request->start_date);
             $parseEndDate = Carbon::parse($request->end_date);
 
+            $startDay = $parseStartDate->day;
+            $endDay = $parseEndDate->day;
+
             $startMonth = $parseStartDate->month;
             $endMonth = $parseEndDate->month;
 
@@ -403,6 +432,10 @@ class PresenceController extends Controller
             $endYear = $parseEndDate->year;
 
             $months = [];
+            $name = DB::table('employees')
+                ->where('uuid', $employeeId)
+                ->select('fullname')
+                ->first();
             if ($startYear == $endYear) {
                 for ($month = $startMonth; $month <= $endMonth; $month++) {
                     $historyPresenceByMonth = DB::table('presences')
@@ -410,7 +443,7 @@ class PresenceController extends Controller
                         ->where('employees.uuid', $employeeId)
                         ->whereRaw('MONTH(presences.presence_date)="' . $month . '"')
                         ->orderBy('presences.presence_date', 'asc')
-                        ->select('presences.id', 'employees.uuid', 'employees.id as employee_id', 'presences.clock_in', 'presences.clock_out', 'presences.ip_address', 'presences.device', 'presences.latitude_in', 'presences.longitude_in', 'presences.latitude_out', 'presences.longitude_out', 'presences.distance_in', 'presences.distance_out', 'presences.photo_in', 'presences.photo_out')
+                        ->select('presences.id', 'employees.uuid', 'employees.id as employee_id', 'presences.clock_in', 'presences.clock_out', 'presences.ip_address', 'presences.device', 'presences.latitude_in', 'presences.longitude_in', 'presences.latitude_out', 'presences.longitude_out', 'presences.distance_in', 'presences.distance_out', 'presences.photo_in', 'presences.photo_out', 'presences.presence_date')
                         ->get()
                         ->groupBy('precense_date');
 
@@ -446,7 +479,7 @@ class PresenceController extends Controller
                             ->whereRaw('Year(presences.presence_date)="' . $year . '"')
                             ->whereRaw('MONTH(presences.presence_date)="' . $month . '"')
                             ->orderBy('presences.presence_date', 'asc')
-                            ->select('presences.id', 'employees.uuid', 'employees.id as employee_id', 'presences.clock_in', 'presences.clock_out', 'presences.ip_address', 'presences.device', 'presences.latitude_in', 'presences.longitude_in', 'presences.latitude_out', 'presences.longitude_out', 'presences.distance_in', 'presences.distance_out', 'presences.photo_in', 'presences.photo_out')
+                            ->select('presences.id', 'employees.uuid', 'employees.id as employee_id', 'presences.clock_in', 'presences.clock_out', 'presences.ip_address', 'presences.device', 'presences.latitude_in', 'presences.longitude_in', 'presences.latitude_out', 'presences.longitude_out', 'presences.distance_in', 'presences.distance_out', 'presences.photo_in', 'presences.photo_out', 'presences.presence_date')
                             ->get()
                             ->groupBy('precense_date');
 
@@ -471,11 +504,22 @@ class PresenceController extends Controller
                     }
                 }
             }
+            $pdf = Pdf::loadView('presenceById', ['months' => $months, 'name' => $name])->setPaper('a4', 'portrait');
+            $pdf->download()->getOriginalContent();
+            $dateTimeNow = new DateTime();
+            $dateNow = $dateTimeNow->format('Y-m-d_H-i-s');
+            Storage::disk('public')->put('presenceById_' . $dateNow . '_' .  $employeeId . '_' . '.pdf', $pdf->output());
+            $pdfpath = 'presenceById_' . $dateNow . '_' .  $employeeId . '.pdf';
+            Storage::disk('public')->put($pdfpath, $pdf->output());
+            $pdfFullPath = asset('storage/' . $pdfpath);
+            $pdfpath = $pdfFullPath;
 
             return response()->json([
                 'status' => 'success',
                 'code' => 200,
-                'data' => $months,
+                'data' => [
+                    'pdf_path' => $pdfpath
+                ],
                 'message' => 'Data presensi pegawai berhasil ditemukan',
             ]);
         } catch (ValidationException $e) {
