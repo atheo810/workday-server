@@ -318,8 +318,13 @@ class PresenceController extends Controller
                             ->select('time_offs.id', 'time_offs.uuid', 'users.email as accepted_by', 'time_offs.title', 'time_offs.type', 'time_offs.start_date', 'time_offs.end_date', 'time_offs.status', 'time_offs.description', 'time_offs.document', 'time_offs.status', 'time_offs.total_days')
                             ->get();
 
+                        $employeeName = DB::table('employees')
+                            ->where('id', $employeeId)
+                            ->select('fullname')->get();
+
                         $months[] = [
                             'employee_id' => $employeeId,
+                            'employee_name' => $employeeName[0]->fullname,
                             'month' => $monthTemplate[$month],
                             'year' => $startYear,
                             'presences' => $presences,
@@ -352,8 +357,13 @@ class PresenceController extends Controller
                                 ->select('time_offs.id', 'time_offs.uuid', 'users.email as accepted_by', 'time_offs.title', 'time_offs.type', 'time_offs.start_date', 'time_offs.end_date', 'time_offs.status', 'time_offs.description', 'time_offs.document', 'time_offs.status', 'time_offs.total_days')
                                 ->get();
 
+                            $employeeName = DB::table('employees')
+                                ->where('id', $employeeId)
+                                ->select('fullname')->get();
+
                             $months[] = [
                                 'employee_id' => $employeeId,
+                                'employee_name' => $employeeName[0]->fullname,
                                 'month' => $monthTemplate[$month],
                                 'year' => $year,
                                 'presences' => $presences,
@@ -363,18 +373,20 @@ class PresenceController extends Controller
                     }
                 }
             }
-            $pdf = Pdf::loadView('presenceById', ['months' => $months])->setPaper('a4', 'portrait');
+            $pdf = Pdf::loadView('presenceAll', ['months' => $months])->setPaper('a4', 'portrait');
             $pdf->download()->getOriginalContent();
             $dateTimeNow = new DateTime();
             $dateNow = $dateTimeNow->format('Y-m-d_H-i-s');
             Storage::disk('public')->put('presenceById_' . $dateNow . '_' .  $employeeId . '_' . '.pdf', $pdf->output());
             $pdfpath = 'presenceById_' . $dateNow . '_all_employee' . '.pdf';
+            Storage::disk('public')->put($pdfpath, $pdf->output());
+            $pdfFullPath = asset('storage/' . $pdfpath);
+            $pdfpath = $pdfFullPath;
 
             return response()->json([
                 'status' => 'success',
                 'code' => 200,
                 'data' => [
-                    $months,
                     'pdf_path' => $pdfpath
                 ],
                 'message' => 'Data presensi pegawai berhasil ditemukan',
@@ -501,12 +513,14 @@ class PresenceController extends Controller
             $dateNow = $dateTimeNow->format('Y-m-d_H-i-s');
             Storage::disk('public')->put('presenceById_' . $dateNow . '_' .  $employeeId . '_' . '.pdf', $pdf->output());
             $pdfpath = 'presenceById_' . $dateNow . '_' .  $employeeId . '.pdf';
+            Storage::disk('public')->put($pdfpath, $pdf->output());
+            $pdfFullPath = asset('storage/' . $pdfpath);
+            $pdfpath = $pdfFullPath;
 
             return response()->json([
                 'status' => 'success',
                 'code' => 200,
                 'data' => [
-                    $months,
                     'pdf_path' => $pdfpath
                 ],
                 'message' => 'Data presensi pegawai berhasil ditemukan',
