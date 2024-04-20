@@ -22,15 +22,15 @@ use App\Models\TimeOff;
 |
 */
 
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/health', function () {
-        return response()->json([
-            'message' => 'Uhuk, I am alive!',
-            'status' => 'OK',
-            'code' => 200,
-        ], 200);
-    });
+Route::get('/health', function () {
+    return response()->json([
+        'message' => 'Uhuk, I am alive!',
+        'status' => 'OK',
+        'code' => 200,
+    ], 200);
+});
 
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::middleware(['check.role:administrator,owner'])->group(function () {
         // ============ *** GENERAL *** ============
         Route::get('/roles', [EmployeeController::class, 'getRoles'])->name('employee.roles');
@@ -47,13 +47,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::apiResource('/users', UserController::class)->except([
             'edit', 'create'
         ]);
-
-        // ============ *** EMPLOYEE PRESENCE *** ============
-        Route::post('/upload/presence/employee', [PresenceController::class, 'uploadFile'])->name('employee-presence.upload-file');
-        Route::get('/employee-presences/{employee_id}', [PresenceController::class, 'getEmployeePresence'])->name('employee-presence.index');
-
-        Route::post('/presence', [PresenceController::class, 'employeePresences'])->name('employee.presences');
-        Route::get('/presence/check/{presence_id}', [PresenceController::class, 'getCurrentPresencesEmployee'])->name('employee.current-presences');
 
         // ============ *** LOCATIONS OFFICES *** ============
         Route::apiResource('/location-office', LocationOfficeController::class)->except([
@@ -75,7 +68,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/upload/presence/employee', [PresenceController::class, 'uploadFile'])->name('employee-presence.upload-file');
         Route::get('/history-presences/{employee_id}', [PresenceController::class, 'getHistoryEmployeePresence'])->name('employee.history.presence.index');
 
-        Route::post('/presence', [PresenceController::class, 'employeePresences'])->name('employee.presences');
+        Route::post('/presence', [PresenceController::class, 'employeePresences'])->name('employee.presences'); // employee presence clock in dan clock out
         Route::get('/presence/check/{presence_id}', [PresenceController::class, 'getCurrentPresencesEmployee'])->name('employee.current-presences');
 
         // ============ *** RECAP PRESENCE *** ============
