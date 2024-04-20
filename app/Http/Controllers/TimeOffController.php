@@ -155,8 +155,7 @@ class TimeOffController extends Controller
                     'id', 'uuid', 'accepted_by', 'type', 'start_date',
                     'end_date', 'description', 'document', 'status', 'total_days'
                 ])
-                ->where('uuid', $id)
-                ->first();
+                ->where('uuid', $id);
 
             if (!$timeOff) {
                 return response()->json([
