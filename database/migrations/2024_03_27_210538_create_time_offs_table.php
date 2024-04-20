@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('time_offs', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->index()->unique();
-            $table->string('title');
             $table->enum('type', [
                 'annual', 'sick_without_docs',
                 'sick_with_docs', 'holiday', 'unpaid',
