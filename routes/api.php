@@ -48,13 +48,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
             'edit', 'create'
         ]);
 
-        // ============ *** EMPLOYEE PRESENCE *** ============
-        Route::post('/upload/presence/employee', [PresenceController::class, 'uploadFile'])->name('employee-presence.upload-file');
-        Route::get('/employee-presences/{employee_id}', [PresenceController::class, 'getEmployeePresence'])->name('employee-presence.index');
-
-        Route::post('/presence', [PresenceController::class, 'employeePresences'])->name('employee.presences');
-        Route::get('/presence/check/{presence_id}', [PresenceController::class, 'getCurrentPresencesEmployee'])->name('employee.current-presences');
-
         // ============ *** LOCATIONS OFFICES *** ============
         Route::apiResource('/location-office', LocationOfficeController::class)->except([
             'update'
@@ -74,6 +67,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // ============ *** EMPLOYEE PRESENCE *** ============
         Route::post('/upload/presence/employee', [PresenceController::class, 'uploadFile'])->name('employee-presence.upload-file');
         Route::get('/history-presences/{employee_id}', [PresenceController::class, 'getHistoryEmployeePresence'])->name('employee.history.presence.index');
+
+        Route::post('/presence', [PresenceController::class, 'employeePresences'])->name('employee.presences');
+        Route::get('/presence/check/{presence_id}', [PresenceController::class, 'getCurrentPresencesEmployee'])->name('employee.current-presences');
+
+        Route::post('/upload/presence/employee', [PresenceController::class, 'uploadFile'])->name('employee-presence.upload-file');
+        Route::get('/employee-presences/{employee_id}', [PresenceController::class, 'getEmployeePresence'])->name('employee-presence.index');
 
         Route::post('/presence', [PresenceController::class, 'employeePresences'])->name('employee.presences');
         Route::get('/presence/check/{presence_id}', [PresenceController::class, 'getCurrentPresencesEmployee'])->name('employee.current-presences');
