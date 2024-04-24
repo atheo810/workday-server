@@ -20,7 +20,7 @@ class TimeOffController extends Controller
         try {
             $timeOff = DB::table('time_offs')
                 ->get([
-                    'id', 'uuid', 'accepted_by', 'title', 'type', 'start_date',
+                    'id', 'uuid', 'accepted_by', 'type', 'start_date',
                     'end_date', 'description', 'document', 'status', 'total_days'
                 ]);
 
@@ -99,7 +99,6 @@ class TimeOffController extends Controller
             $request->validate([
                 'accepted_by' => 'required|integer',
                 'employee_id' => 'required|integer',
-                'title' => 'required|string',
                 'type' => 'required|in:annual,unpaid,sick_without_docs,sick_with_docs,holiday,special_permit',
                 'start_date' => 'required|date',
                 'end_date' => 'required|date',
@@ -114,7 +113,6 @@ class TimeOffController extends Controller
                 'uuid' => $uuid,
                 'employee_id' => $request->employee_id,
                 'accepted_by' => $request->accepted_by,
-                'title' => $request->title,
                 'type' => $request->type,
                 'start_date' => $request->start_date,
                 'end_date' => $request->end_date,
@@ -154,11 +152,10 @@ class TimeOffController extends Controller
         try {
             $timeOff = DB::table('time_offs')
                 ->get([
-                    'id', 'uuid', 'accepted_by', 'title', 'type', 'start_date',
+                    'id', 'uuid', 'accepted_by', 'type', 'start_date',
                     'end_date', 'description', 'document', 'status', 'total_days'
                 ])
-                ->where('uuid', $id)
-                ->first();
+                ->where('uuid', $id);
 
             if (!$timeOff) {
                 return response()->json([
@@ -194,7 +191,6 @@ class TimeOffController extends Controller
             $request->validate([
                 'accepted_by' => 'required|integer',
                 'employee_id' => 'required|integer',
-                'title' => 'required|string',
                 'type' => 'required|in:annual,unpaid,sick_without_docs,sick_with_docs,holiday,special_permit',
                 'start_date' => 'required|date',
                 'end_date' => 'required|date',
@@ -217,7 +213,6 @@ class TimeOffController extends Controller
             $timeOff->update([
                 'employee_id' => (int) $request->employee_id,
                 'accepted_by' => (int) $request->accepted_by,
-                'title' => $request->title,
                 'type' => strtolower($request->type),
                 'start_date' => $request->start_date,
                 'end_date' => $request->end_date,

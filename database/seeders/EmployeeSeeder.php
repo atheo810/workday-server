@@ -47,7 +47,7 @@ class EmployeeSeeder extends Seeder
                 'uuid' => Cuid::make(),
                 'fullname' => 'Ketut Sujana',
                 'gender' => 'laki-laki',
-                'position' => 'security',
+                'position' => 'mechanic',
                 'phone_number' => Text::formatPhoneNumber('089889339223'),
                 'employee_code' => Text::generateIdCardNumber(),
                 'avatar' => null,

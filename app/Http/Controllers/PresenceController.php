@@ -82,7 +82,7 @@ class PresenceController extends Controller
 
     public function calculateDistance($officeLatitude, $officeLongitude, $currentLatitude, $currentLongitude)
     {
-        $earthRadius = 6371000; // Radius bumi dalam meter
+        $earthRadius = 6371000; // Radius of Earth in meters
         $latFrom = deg2rad($officeLatitude);
         $lonFrom = deg2rad($officeLongitude);
         $latTo = deg2rad($currentLatitude);
@@ -204,6 +204,14 @@ class PresenceController extends Controller
                     $currentLocationOffice->latitude,
                     $currentLocationOffice->longitude
                 );
+                if ($distanceOut > 100) {
+                    return response()->json([
+                        'code' => 422,
+                        'status' => 'error',
+                        'data' => null,
+                        'message' => 'Lokasi kamu diluar jangkauan 100 meter',
+                    ], 422);
+                }
 
                 Presence::where('employee_id', $employeeIdQuery)
                     ->where('presence_date', $presenceDate)
@@ -282,9 +290,6 @@ class PresenceController extends Controller
 
             $parseStartDate = Carbon::parse($request->start_date);
             $parseEndDate = Carbon::parse($request->end_date);
-
-            $startDay = $parseStartDate->day;
-            $endDay = $parseEndDate->day;
 
             $startMonth = $parseStartDate->month;
             $endMonth = $parseEndDate->month;
@@ -374,10 +379,13 @@ class PresenceController extends Controller
             $pdf = Pdf::loadView('presenceAll', ['months' => $months])->setPaper('a4', 'portrait');
             $pdf->download()->getOriginalContent();
             $dateTimeNow = new DateTime();
+
             $dateNow = $dateTimeNow->format('Y-m-d_H-i-s');
             Storage::disk('public')->put('presenceById_' . $dateNow . '_' .  $employeeId . '_' . '.pdf', $pdf->output());
+
             $pdfpath = 'presenceById_' . $dateNow . '_all_employee' . '.pdf';
             Storage::disk('public')->put($pdfpath, $pdf->output());
+
             $pdfFullPath = asset('storage/' . $pdfpath);
             $pdfpath = $pdfFullPath;
 
@@ -385,7 +393,7 @@ class PresenceController extends Controller
                 'status' => 'success',
                 'code' => 200,
                 'data' => [
-                    'pdf_path' => $pdfpath
+                    'url' => $pdfpath
                 ],
                 'message' => 'Data presensi pegawai berhasil ditemukan',
             ]);
@@ -421,9 +429,6 @@ class PresenceController extends Controller
 
             $parseStartDate = Carbon::parse($request->start_date);
             $parseEndDate = Carbon::parse($request->end_date);
-
-            $startDay = $parseStartDate->day;
-            $endDay = $parseEndDate->day;
 
             $startMonth = $parseStartDate->month;
             $endMonth = $parseEndDate->month;
@@ -518,7 +523,7 @@ class PresenceController extends Controller
                 'status' => 'success',
                 'code' => 200,
                 'data' => [
-                    'pdf_path' => $pdfpath
+                    'url' => $pdfpath
                 ],
                 'message' => 'Data presensi pegawai berhasil ditemukan',
             ]);

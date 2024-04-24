@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 
 class PermissionSeeder extends Seeder
 {
@@ -14,42 +14,43 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        Role::updateOrCreate(
-            ['name' => 'administrator'],
-            ['name' => 'administrator'],
-        );
-        Role::updateOrCreate(
-            ['name' => 'owner'],
-            ['name' => 'owner']
-        );
-        Role::updateOrCreate(
-            ['name' => 'head-mechanic'],
-            ['name' => 'head-mechanic']
-        );
-        Role::updateOrCreate(
-            ['name' => 'mechanic'],
-            ['name' => 'mechanic']
-        );
-        Role::updateOrCreate(
-            ['name' => 'cleaner'],
-            ['name' => 'cleaner']
-        );
-        Role::updateOrCreate(
-            ['name' => 'office-boy'],
-            ['name' => 'office-boy']
-        );
-        Role::updateOrCreate(
-            ['name' => 'security'],
-            ['name' => 'security']
-        );
+        Role::create([
+            'guard_name' => 'api',
+            'name' => 'administrator'
+        ]);
+        Role::create([
+            'guard_name' => 'api',
+            'name' => 'owner'
+        ]);
+        Role::create([
+            'guard_name' => 'api',
+            'name' => 'head-mechanic'
+        ]);
+        Role::create([
+            'guard_name' => 'api',
+            'name' => 'mechanic'
+        ]);
+        Role::create([
+            'guard_name' => 'api',
+            'name' => 'cleaner'
+        ]);
+        Role::create([
+            'guard_name' => 'api',
+            'name' => 'office-boy'
+        ]);
+        Role::create([
+            'guard_name' => 'api',
+            'name' => 'security'
+        ]);
 
         $currentOwner = User::find(1);
         $currentAdmin = User::find(2);
+        $currentSpecialUser = User::find(3);
 
         // $currentSecurity = User::find(3);
 
         $currentOwner->assignRole('owner');
         $currentAdmin->assignRole('administrator');
-        // $currentSecurity->assignRole('security');
+        $currentSpecialUser->assignRole('administrator');
     }
 }

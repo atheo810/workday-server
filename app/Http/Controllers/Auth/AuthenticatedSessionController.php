@@ -78,6 +78,20 @@ class AuthenticatedSessionController extends Controller
             $currentEmail = $userAccount->email;
             $currentAccountStatus = $userAccount->account_status;
 
+
+            $totalPresences = DB::table('employees')
+                ->join('presences', 'employees.uuid', '=', 'presences.employee_id')
+                ->where('employees.id', $currentEmployeeId)
+                ->count();
+
+            $totalTimeOff = DB::table('employees')
+                ->join('time_offs', 'employees.id', '=', 'time_offs.employee_id')
+                ->where('time_offs.employee_id', $currentEmployeeId)
+                ->where('time_offs.status', 'approved')
+                ->count();
+
+
+
             $employee = DB::table('employees')
                 ->get([
                     'uuid', 'id', 'fullname', 'position', 'phone_number', 'avatar',
@@ -89,6 +103,8 @@ class AuthenticatedSessionController extends Controller
             $employeeData = array_merge([
                 'email' => $currentEmail,
                 'account_status' => $currentAccountStatus,
+                'total_presences' => $totalPresences,
+                'total_timeoffs' => $totalTimeOff,
             ], (array) $employee);
 
             if (!$employee) {
