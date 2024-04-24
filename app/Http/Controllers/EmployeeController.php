@@ -26,14 +26,14 @@ class EmployeeController extends Controller
                     'status' => 'error',
                     'data' => [],
                     'message' => 'Semua pegawai sudah terdaftar sebagai user'
-                ], 404);
+                ], 200);
             }
 
             return response()->json([
                 'code' => 200,
                 'status' => 'success',
                 'data' => $employees,
-                'message' => 'Pitemukan'
+                'message' => 'Pegawai yang belum terdaftar sebagai user berhasil didapatkan'
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

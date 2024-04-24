@@ -11,4 +11,8 @@ Route::middleware('auth:sanctum', 'check.role:administrator,owner')->group(funct
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
+
+    // ONLY THIRD PARTY SERVICE
+    Route::get('/get-user', [AuthenticatedSessionController::class, 'getUser'])
+        ->name('auth.get-user');
 });
