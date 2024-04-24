@@ -82,7 +82,7 @@ class PresenceController extends Controller
 
     public function calculateDistance($officeLatitude, $officeLongitude, $currentLatitude, $currentLongitude)
     {
-        $earthRadius = 6371000; // Radius bumi dalam meter
+        $earthRadius = 6371000; // Radius of Earth in meters
         $latFrom = deg2rad($officeLatitude);
         $lonFrom = deg2rad($officeLongitude);
         $latTo = deg2rad($currentLatitude);
@@ -204,6 +204,14 @@ class PresenceController extends Controller
                     $currentLocationOffice->latitude,
                     $currentLocationOffice->longitude
                 );
+                if ($distanceOut > 100) {
+                    return response()->json([
+                        'code' => 422,
+                        'status' => 'error',
+                        'data' => null,
+                        'message' => 'Lokasi kamu diluar jangkauan 100 meter',
+                    ], 422);
+                }
 
                 Presence::where('employee_id', $employeeIdQuery)
                     ->where('presence_date', $presenceDate)
