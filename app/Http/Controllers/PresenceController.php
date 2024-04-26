@@ -406,11 +406,11 @@ class PresenceController extends Controller
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
-                'code' => 500,
-                'status' => 'error',
+                'code' => 404,
+                'status' => 'not found',
                 'data' => null,
-                'message' => $e->getMessage(),
-            ], 500);
+                'message' => 'tidak ada data sama sekali pada database',
+            ], 404);
         }
     }
 
@@ -536,11 +536,11 @@ class PresenceController extends Controller
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
-                'code' => 500,
-                'status' => 'error',
+                'code' => 404,
+                'status' => 'not found',
                 'data' => null,
-                'message' => $e->getMessage(),
-            ], 500);
+                'message' => 'data presensi tidak ada pada database',
+            ], 404);
         }
     }
 }
