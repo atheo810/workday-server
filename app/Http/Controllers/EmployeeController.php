@@ -275,7 +275,9 @@ class EmployeeController extends Controller
                     'gender' => 'required|in:laki-laki,perempuan',
                     'position' => 'required|in:owner,administrator,head-mechanic,mechanic,cleaner,office-boy,security',
                     'address' => 'nullable|string',
-                    'joined_company_at' =>  'required|string',
+                    'joined_company_at' =>  'nullable|string',
+                    'avatar' => 'nullable|string',
+                    'phone_number' => 'nullable|string',
                 ],
                 [
                     'phone_number.string' => 'Nomor telepon harus berupa angka',
@@ -294,15 +296,26 @@ class EmployeeController extends Controller
                 ], 404);
             }
 
-            $currentEmployee->update([
-                'fullname' => $request->fullname,
-                'gender' => $request->gender,
-                'position' => $request->position,
-                'phone_number' => Text::formatPhoneNumber($request->phone_number),
-                'address' => $request->address,
-                'joined_company_at' => $request->joined_company_at,
-                'avatar' => $request->avatar,
-            ]);
+            if ($request->avatar !== "") {
+                $currentEmployee->update([
+                    'fullname' => $request->fullname,
+                    'gender' => $request->gender,
+                    'position' => $request->position,
+                    'phone_number' => Text::formatPhoneNumber($request->phone_number),
+                    'address' => $request->address,
+                    'joined_company_at' => $request->joined_company_at,
+                    'avatar' => $request->avatar,
+                ]);
+            } else {
+                $currentEmployee->update([
+                    'fullname' => $request->fullname,
+                    'gender' => $request->gender,
+                    'position' => $request->position,
+                    'phone_number' => Text::formatPhoneNumber($request->phone_number),
+                    'address' => $request->address,
+                    'joined_company_at' => $request->joined_company_at,
+                ]);
+            }
 
             return response()->json([
                 'code' => 200,
@@ -376,15 +389,5 @@ class EmployeeController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
-    }
-
-    public function recovery(string $employeeUuid)
-    {
-        Employee::where('uuid', $employeeUuid)->update([
-            'is_deleted' => false,
-            'status' => 'active'
-        ]);
-
-        return redirect()->route('admin.manage-employee')->with('success', 'Pegawai berhasil direstore!');
     }
 }

@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('phone_number', 15)->unique()->nullable();
             $table->string('avatar')->nullable();
             $table->text('address')->nullable();
-            $table->timestamp('joined_company_at');
+            $table->date('joined_company_at');
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->boolean('is_deleted')->default(false);
             $table->timestamps();
