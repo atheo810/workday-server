@@ -8,6 +8,7 @@ use App\Http\Controllers\EmployeeController;
 
 use App\Http\Controllers\TimeOffController;
 use App\Http\Controllers\PresenceController;
+use App\Http\Controllers\PrivateService\PrivateServiceController;
 use App\Http\Controllers\UserController;
 use App\Models\TimeOff;
 
@@ -28,6 +29,10 @@ Route::get('/health', function () {
         'status' => 'OK',
         'code' => 200,
     ], 200);
+});
+
+Route::prefix('sv')->group(function () {
+    Route::get('/users/{key}/{userId}', [PrivateServiceController::class, 'getUsers'])->name('sv.users');
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
