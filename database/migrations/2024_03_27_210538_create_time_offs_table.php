@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamp('start_date');
             $table->timestamp('end_date');
             $table->text('description');
-            $table->string('document');
+            $table->string('document')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->integer('total_days');
             $table->timestamps();

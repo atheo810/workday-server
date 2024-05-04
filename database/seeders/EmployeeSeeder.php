@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Helpers\Text;
 use App\Models\Employee;
+use App\Models\Presence;
 use CaliCastle\Cuid;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -58,7 +59,7 @@ class EmployeeSeeder extends Seeder
         ];
 
         foreach ($employeeData as $employee) {
-            Employee::create($employee);
+            $createdEmployee = Employee::create($employee);
             sleep(2);
         }
     }
