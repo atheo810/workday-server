@@ -97,8 +97,8 @@ class TimeOffController extends Controller
     {
         try {
             $request->validate([
-                'accepted_by' => 'required|integer',
-                'employee_id' => 'required|integer',
+                'accepted_by' => 'string',
+                'employee_id' => 'required|string',
                 'type' => 'required|in:annual,unpaid,sick_without_docs,sick_with_docs,holiday,special_permit',
                 'start_date' => 'required|date',
                 'end_date' => 'required|date',
