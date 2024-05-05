@@ -18,7 +18,7 @@ class EmployeeController extends Controller
     {
         try {
             $employeeIds = User::pluck('employee_id')->filter();
-            $employees = Employee::whereNotIn('id', $employeeIds)->get(['id', 'uuid', 'fullname']);
+            $employees = Employee::whereNotIn('uuid', $employeeIds)->get(['id', 'uuid', 'fullname']);
 
             if ($employees->isEmpty()) {
                 return response()->json([

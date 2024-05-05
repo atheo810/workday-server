@@ -6,6 +6,7 @@ use App\Models\User;
 use CaliCastle\Cuid;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -17,7 +18,7 @@ class UserController extends Controller
   {
     try {
       $users = DB::table('users')
-        ->join('employees', 'users.employee_id', '=', 'employees.id')
+        ->join('employees', 'users.employee_id', '=', 'employees.uuid')
         ->get([
           'users.id', 'users.uuid', 'users.email', 'users.account_status',
           'employees.fullname', 'employees.position', 'users.is_deleted'
@@ -71,11 +72,11 @@ class UserController extends Controller
   {
     try {
       $request->validate([
-        'uuid' => 'string',
         'email' => 'required|string|email|unique:users',
         'password' => 'required|string|min:8',
-        'employee_id' => 'required',
-        'account_status' => 'string|in:active,inactive'
+        'employee_id' => 'required|string',
+        'account_status' => 'string|in:active,inactive',
+        'position' => 'required|string|in:administrator,owner,head-machanic,mechanic,cleaner,office'
       ], [
         'email.required' => 'Email harus diisi',
         'email.email' => 'Email tidak valid',
@@ -89,7 +90,7 @@ class UserController extends Controller
         $userId = $this->insertUser([
           'uuid' => Cuid::make(),
           'email' => strtolower($request->email),
-          'password' => bcrypt($request->password),
+          'password' => Hash::make($request->password),
           'employee_id' => $request->employee_id,
           'account_status' => 'active'
         ]);

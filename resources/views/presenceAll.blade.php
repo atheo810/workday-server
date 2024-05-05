@@ -68,7 +68,7 @@
 		<div style="max-width: 900px; margin-inline: auto;">
 			<div style="text-align: center; margin-bottom: 10px;">
 				<img
-					src="data:image/png;base64, {{ base64_encode(file_get_contents(public_path('assets/images/logo-workday-tracker.png'))) }}"
+					src="data:image/png;base64, {{ base64_encode(file_get_contents(public_path('images/logo-workday-tracker.png'))) }}"
 					style="display: inline-block; height: 100px; object-fit: contain;" alt="Bengker eurocar" />
 			</div>
 

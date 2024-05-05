@@ -27,7 +27,6 @@ return new class extends Migration
             $table->string('photo_in')->nullable();
             $table->string('photo_out')->nullable();
             $table->date('presence_date');
-            // $table->integer('presence_by');
             $table->timestamps();
             $table->softDeletes();
         });
