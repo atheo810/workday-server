@@ -35,7 +35,7 @@ class PresenceFactory extends Factory
             'longitude_out' => $this->faker->randomFloat(6, -0.000898, 0.000898) + $officeLongitude,
             "photo_in" => $this->faker->imageUrl(),
             "photo_out" => $this->faker->imageUrl(),
-            'presence_date' => $this->faker->date(),
+            'presence_date' => $this->faker->dateTimeBetween('2024-05-01', '2025-05-31')->format('Y-m-d'),
         ];
     }
 }

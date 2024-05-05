@@ -161,7 +161,6 @@ class PresenceController extends Controller
                 'longitude_in' => 'string',
                 'latitude_out' => 'string',
                 'longitude_out' => 'string',
-                // 'presence_by' => 'integer',
                 'employee_id' => 'string',
                 'photo_in' => 'string',
                 'photo_out' => 'string',
@@ -237,6 +236,15 @@ class PresenceController extends Controller
                     $currentLocationOffice->longitude
                 );
 
+                if ($distanceIn > 100) {
+                    return response()->json([
+                        'code' => 422,
+                        'status' => 'error',
+                        'data' => null,
+                        'message' => 'Lokasi kamu diluar jangkauan 100 meter',
+                    ], 422);
+                }
+
                 Presence::create([
                     'uuid' => $uuid,
                     'employee_id' => $employeeIdQuery,
@@ -248,7 +256,6 @@ class PresenceController extends Controller
                     'distance_in' => $distanceIn,
                     'photo_in' => $request->photo_in,
                     'presence_date' => $presenceDate,
-                    // 'presence_by' => (int) $createdBy,
                 ]);
 
                 return response()->json([
@@ -307,22 +314,23 @@ class PresenceController extends Controller
                         // ->join('users', 'presences.presence_by', '=', 'users.id')
                         ->whereRaw('MONTH(presences.presence_date)="' . $month . '"')
                         ->orderBy('employees.id', 'asc')
-                        ->select('presences.id', 'presences.employee_id', 'presences.uuid', 'presences.clock_in', 'presences.clock_out', 'presences.ip_address', 'presences.device', 'presences.latitude_in', 'presences.longitude_in', 'presences.latitude_out', 'presences.longitude_out', 'presences.distance_in', 'presences.distance_out', 'presences.photo_in', 'presences.photo_out', 'presences.presence_date', 'employees.id as employee_id')
+                        ->select('presences.id', 'presences.employee_id', 'presences.uuid', 'presences.clock_in', 'presences.clock_out',  'presences.presence_date', 'employees.uuid as employee_id')
                         ->get()
                         ->groupBy('employee_id');
+
 
                     // foreach timeoff
                     foreach ($historyPresenceByMonth as $employeeId => $presences) {
                         $timeOffs = DB::table('time_offs')
-                            ->where('time_offs.employee_id', $employeeId)
+                            ->where('time_offs.employee_id', $presences[0]->employee_id)
                             ->whereRaw('YEAR(time_offs.start_date)="' . $startYear . '"')
                             ->whereRaw('MONTH(time_offs.start_date)="' . $month . '"')
-                            ->join('users', 'time_offs.accepted_by', '=', 'users.id')
-                            ->select('time_offs.id', 'time_offs.uuid', 'users.email as accepted_by', 'time_offs.title', 'time_offs.type', 'time_offs.start_date', 'time_offs.end_date', 'time_offs.status', 'time_offs.description', 'time_offs.document', 'time_offs.status', 'time_offs.total_days')
+                            ->join('users', 'time_offs.accepted_by', '=', 'users.uuid')
+                            ->select('time_offs.id', 'time_offs.uuid', 'users.email as accepted_by', 'time_offs.type', 'time_offs.start_date', 'time_offs.end_date', 'time_offs.status', 'time_offs.description', 'time_offs.document', 'time_offs.status', 'time_offs.total_days')
                             ->get();
 
                         $employeeName = DB::table('employees')
-                            ->where('id', $employeeId)
+                            ->where('uuid', $presences[0]->employee_id)
                             ->select('fullname')->get();
 
                         $months[] = [
@@ -331,7 +339,7 @@ class PresenceController extends Controller
                             'month' => $monthTemplate[$month],
                             'year' => $startYear,
                             'presences' => $presences,
-                            'time_offs' => $timeOffs
+                            'time_offs' => $timeOffs,
                         ];
                     }
                 }
@@ -347,21 +355,21 @@ class PresenceController extends Controller
                             ->join('employees', 'presences.employee_id', '=', 'employees.uuid')
                             // ->join('users', 'presences.presence_by', '=', 'users.id')
                             ->orderBy('employees.id', 'asc')
-                            ->select('presences.id', 'presences.employee_id', 'presences.uuid', 'presences.clock_in', 'presences.clock_out', 'presences.ip_address', 'presences.device', 'presences.latitude_in', 'presences.longitude_in', 'presences.latitude_out', 'presences.longitude_out', 'presences.distance_in', 'presences.distance_out', 'presences.photo_in', 'presences.photo_out', 'presences.presence_date', 'employees.id as employee_id')
+                            ->select('presences.id', 'presences.employee_id', 'presences.uuid', 'presences.clock_in', 'presences.clock_out',  'presences.presence_date', 'employees.uuid as employee_id')
                             ->get()
                             ->groupBy('employee_id');
 
                         foreach ($historyPresenceByMonth as $employeeId => $presences) {
                             $timeOffs = DB::table('time_offs')
-                                ->where('time_offs.employee_id', $employeeId)
+                                ->where('time_offs.employee_id', $presences[0]->employee_id)
                                 ->whereRaw('YEAR(time_offs.start_date)="' . $year . '"')
                                 ->whereRaw('MONTH(time_offs.start_date)="' . $month . '"')
-                                ->join('users', 'time_offs.accepted_by', '=', 'users.id')
-                                ->select('time_offs.id', 'time_offs.uuid', 'users.email as accepted_by', 'time_offs.title', 'time_offs.type', 'time_offs.start_date', 'time_offs.end_date', 'time_offs.status', 'time_offs.description', 'time_offs.document', 'time_offs.status', 'time_offs.total_days')
+                                ->join('users', 'time_offs.accepted_by', '=', 'users.uuid')
+                                ->select('time_offs.id', 'time_offs.uuid', 'users.email as accepted_by', 'time_offs.type', 'time_offs.start_date', 'time_offs.end_date', 'time_offs.status', 'time_offs.description', 'time_offs.document', 'time_offs.status', 'time_offs.total_days')
                                 ->get();
 
                             $employeeName = DB::table('employees')
-                                ->where('id', $employeeId)
+                                ->where('uuid', $presences[0]->employee_id)
                                 ->select('fullname')->get();
 
                             $months[] = [
@@ -370,12 +378,13 @@ class PresenceController extends Controller
                                 'month' => $monthTemplate[$month],
                                 'year' => $year,
                                 'presences' => $presences,
-                                'time_offs' => $timeOffs
+                                'time_offs' => $timeOffs,
                             ];
                         }
                     }
                 }
             }
+
             $pdf = Pdf::loadView('presenceAll', ['months' => $months])->setPaper('a4', 'portrait');
             $pdf->download()->getOriginalContent();
             $dateTimeNow = new DateTime();
@@ -397,6 +406,16 @@ class PresenceController extends Controller
                 ],
                 'message' => 'Data presensi pegawai berhasil ditemukan',
             ]);
+
+
+            // urgently check if broken
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'code' => 200,
+            //     'data' => $months,
+            //     'message' => 'Data presensi pegawai berhasil ditemukan',
+            // ]);
         } catch (ValidationException $e) {
             return response()->json([
                 'code' => 422,
@@ -407,7 +426,7 @@ class PresenceController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'code' => 404,
-                'status' => 'not found',
+                'status' => $e->getMessage(),
                 'data' => null,
                 'message' => 'tidak ada data sama sekali pada database',
             ], 404);
@@ -448,7 +467,7 @@ class PresenceController extends Controller
                         ->where('employees.uuid', $employeeId)
                         ->whereRaw('MONTH(presences.presence_date)="' . $month . '"')
                         ->orderBy('presences.presence_date', 'asc')
-                        ->select('presences.id', 'employees.uuid', 'employees.id as employee_id', 'presences.clock_in', 'presences.clock_out', 'presences.ip_address', 'presences.device', 'presences.latitude_in', 'presences.longitude_in', 'presences.latitude_out', 'presences.longitude_out', 'presences.distance_in', 'presences.distance_out', 'presences.photo_in', 'presences.photo_out', 'presences.presence_date')
+                        ->select('presences.id', 'employees.uuid', 'employees.id as employee_id', 'presences.clock_in', 'presences.clock_out', 'presences.ip_address', 'presences.presence_date')
                         ->get()
                         ->groupBy('precense_date');
 
@@ -484,7 +503,7 @@ class PresenceController extends Controller
                             ->whereRaw('Year(presences.presence_date)="' . $year . '"')
                             ->whereRaw('MONTH(presences.presence_date)="' . $month . '"')
                             ->orderBy('presences.presence_date', 'asc')
-                            ->select('presences.id', 'employees.uuid', 'employees.id as employee_id', 'presences.clock_in', 'presences.clock_out', 'presences.ip_address', 'presences.device', 'presences.latitude_in', 'presences.longitude_in', 'presences.latitude_out', 'presences.longitude_out', 'presences.distance_in', 'presences.distance_out', 'presences.photo_in', 'presences.photo_out', 'presences.presence_date')
+                            ->select('presences.id', 'employees.uuid', 'employees.id as employee_id', 'presences.clock_in', 'presences.clock_out',  'presences.presence_date')
                             ->get()
                             ->groupBy('precense_date');
 
