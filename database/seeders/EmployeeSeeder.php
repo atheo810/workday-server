@@ -19,7 +19,7 @@ class EmployeeSeeder extends Seeder
         $employeeData = [
             [
                 'id' => 1,
-                'uuid' => Cuid::make(),
+                'uuid' => 'clvsssbqo0001cuglboduvoc4',
                 'fullname' => 'Jack Sparrow',
                 'gender' => 'laki-laki',
                 'position' => 'owner',
@@ -32,7 +32,7 @@ class EmployeeSeeder extends Seeder
             ],
             [
                 'id' => 2,
-                'uuid' => Cuid::make(),
+                'uuid' => 'clvsssbqo0001cuglboduvoc5',
                 'fullname' => 'Super Admin',
                 'gender' => 'laki-laki',
                 'position' => 'administrator',
@@ -45,7 +45,7 @@ class EmployeeSeeder extends Seeder
             ],
             [
                 'id' => 3,
-                'uuid' => Cuid::make(),
+                'uuid' => 'clvsssbqo0001cuglboduvoc6',
                 'fullname' => 'Ketut Sujana',
                 'gender' => 'laki-laki',
                 'position' => 'mechanic',
@@ -59,7 +59,7 @@ class EmployeeSeeder extends Seeder
         ];
 
         foreach ($employeeData as $employee) {
-            $createdEmployee = Employee::create($employee);
+            Employee::create($employee);
             sleep(2);
         }
     }

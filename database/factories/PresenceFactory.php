@@ -23,7 +23,8 @@ class PresenceFactory extends Factory
         return [
             'uuid' => $this->faker->uuid,
             'distance_in' => $this->faker->numberBetween(1, 100),
-            'presence_by' => 1,
+            'distance_out' => $this->faker->numberBetween(1, 100),
+            // 'presence_by' => 1,
             "clock_in" => $this->faker->time(),
             "clock_out" => $this->faker->time(),
             "ip_address" => $this->faker->ipv4,

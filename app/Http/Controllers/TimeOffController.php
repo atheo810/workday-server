@@ -147,17 +147,17 @@ class TimeOffController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $employeeId)
     {
         try {
             $timeOff = DB::table('time_offs')
                 ->get([
-                    'id', 'uuid', 'accepted_by', 'type', 'start_date',
+                    'uuid', 'accepted_by', 'type', 'start_date', 'employee_id',
                     'end_date', 'description', 'document', 'status', 'total_days'
                 ])
-                ->where('uuid', $id);
+                ->where('employee_id', $employeeId);
 
-            if (!$timeOff) {
+            if ($timeOff->isEmpty()) {
                 return response()->json([
                     'code' => 404,
                     'status' => 'error',

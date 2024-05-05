@@ -161,7 +161,7 @@ class PresenceController extends Controller
                 'longitude_in' => 'string',
                 'latitude_out' => 'string',
                 'longitude_out' => 'string',
-                'presence_by' => 'integer',
+                // 'presence_by' => 'integer',
                 'employee_id' => 'string',
                 'photo_in' => 'string',
                 'photo_out' => 'string',
@@ -248,7 +248,7 @@ class PresenceController extends Controller
                     'distance_in' => $distanceIn,
                     'photo_in' => $request->photo_in,
                     'presence_date' => $presenceDate,
-                    'presence_by' => (int) $createdBy,
+                    // 'presence_by' => (int) $createdBy,
                 ]);
 
                 return response()->json([
@@ -304,10 +304,10 @@ class PresenceController extends Controller
                 for ($month = $startMonth; $month <= $endMonth; $month++) {
                     $historyPresenceByMonth = DB::table('presences')
                         ->join('employees', 'presences.employee_id', '=', 'employees.uuid')
-                        ->join('users', 'presences.presence_by', '=', 'users.id')
+                        // ->join('users', 'presences.presence_by', '=', 'users.id')
                         ->whereRaw('MONTH(presences.presence_date)="' . $month . '"')
                         ->orderBy('employees.id', 'asc')
-                        ->select('presences.id', 'presences.employee_id', 'presences.uuid', 'presences.clock_in', 'presences.clock_out', 'presences.ip_address', 'presences.device', 'presences.latitude_in', 'presences.longitude_in', 'presences.latitude_out', 'presences.longitude_out', 'presences.distance_in', 'presences.distance_out', 'presences.photo_in', 'presences.photo_out', 'presences.presence_date', 'users.email as presence_by', 'employees.id as employee_id')
+                        ->select('presences.id', 'presences.employee_id', 'presences.uuid', 'presences.clock_in', 'presences.clock_out', 'presences.ip_address', 'presences.device', 'presences.latitude_in', 'presences.longitude_in', 'presences.latitude_out', 'presences.longitude_out', 'presences.distance_in', 'presences.distance_out', 'presences.photo_in', 'presences.photo_out', 'presences.presence_date', 'employees.id as employee_id')
                         ->get()
                         ->groupBy('employee_id');
 
@@ -345,9 +345,9 @@ class PresenceController extends Controller
                             ->whereRaw('YEAR(presences.presence_date)="' . $year . '"')
                             ->whereRaw('MONTH(presences.presence_date)="' . $month . '"')
                             ->join('employees', 'presences.employee_id', '=', 'employees.uuid')
-                            ->join('users', 'presences.presence_by', '=', 'users.id')
+                            // ->join('users', 'presences.presence_by', '=', 'users.id')
                             ->orderBy('employees.id', 'asc')
-                            ->select('presences.id', 'presences.employee_id', 'presences.uuid', 'presences.clock_in', 'presences.clock_out', 'presences.ip_address', 'presences.device', 'presences.latitude_in', 'presences.longitude_in', 'presences.latitude_out', 'presences.longitude_out', 'presences.distance_in', 'presences.distance_out', 'presences.photo_in', 'presences.photo_out', 'presences.presence_date', 'users.email as presence_by', 'employees.id as employee_id')
+                            ->select('presences.id', 'presences.employee_id', 'presences.uuid', 'presences.clock_in', 'presences.clock_out', 'presences.ip_address', 'presences.device', 'presences.latitude_in', 'presences.longitude_in', 'presences.latitude_out', 'presences.longitude_out', 'presences.distance_in', 'presences.distance_out', 'presences.photo_in', 'presences.photo_out', 'presences.presence_date', 'employees.id as employee_id')
                             ->get()
                             ->groupBy('employee_id');
 
