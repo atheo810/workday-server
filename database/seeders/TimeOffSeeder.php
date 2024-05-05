@@ -17,7 +17,7 @@ class TimeOffSeeder extends Seeder
         TimeOff::create([
             'id' => 1,
             'uuid' => Cuid::make(),
-            'accepted_by' => 1,
+            'accepted_by' => 'clvsssbqo0001cuglboduvob5',
             'employee_id' => 'clvsssbqo0001cuglboduvoc4',
             'type' => 'annual',
             'description' => 'Annual leave',
@@ -29,7 +29,7 @@ class TimeOffSeeder extends Seeder
         TimeOff::create([
             'id' => 2,
             'uuid' => Cuid::make(),
-            'accepted_by' => 1,
+            'accepted_by' => 'clvsssbqo0001cuglboduvob5',
             'employee_id' => 'clvsssbqo0001cuglboduvoc4',
             'type' => 'annual',
             'description' => 'Annual leave',
@@ -41,7 +41,7 @@ class TimeOffSeeder extends Seeder
         TimeOff::create([
             'id' => 3,
             'uuid' => Cuid::make(),
-            'accepted_by' => 1,
+            'accepted_by' => 'clvsssbqo0001cuglboduvob5',
             'employee_id' => 'clvsssbqo0001cuglboduvoc4',
             'type' => 'annual',
             'description' => 'Annual leave',
@@ -53,7 +53,7 @@ class TimeOffSeeder extends Seeder
         TimeOff::create([
             'id' => 4,
             'uuid' => Cuid::make(),
-            'accepted_by' => 1,
+            'accepted_by' => 'clvsssbqo0001cuglboduvob5',
             'employee_id' => 'clvsssbqo0001cuglboduvoc5',
             'type' => 'annual',
             'description' => 'Annual leave',

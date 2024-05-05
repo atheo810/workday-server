@@ -16,20 +16,20 @@ class UserSeeder extends Seeder
     {
         User::create([
             'id' => 1,
-            'uuid' => Cuid::make(),
+            'uuid' => 'clvsssbqo0001cuglboduvob4',
             'email' => 'owner@gmail.com',
             'password' => Hash::make('password'),
             'account_status' => 'active',
-            'employee_id' => 1,
+            'employee_id' => 'clvsssbqo0001cuglboduvoc4',
         ]);
 
         User::create([
             'id' => 2,
-            'uuid' => Cuid::make(),
+            'uuid' => 'clvsssbqo0001cuglboduvob5',
             'email' => 'admin@gmail.com',
             'password' => Hash::make('password'),
             'account_status' => 'active',
-            'employee_id' => 2,
+            'employee_id' => 'clvsssbqo0001cuglboduvoc5',
         ]);
     }
 }

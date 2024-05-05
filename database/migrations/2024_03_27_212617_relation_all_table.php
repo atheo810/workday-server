@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('employee_id')->nullable()->after('uuid')->references('id')->on('employees');
+            $table->foreignUuid('employee_id')->nullable()->after('uuid')->references('uuid')->on('employees');
         });
 
         Schema::table('presences', function (Blueprint $table) {
@@ -22,7 +22,7 @@ return new class extends Migration
 
         Schema::table('time_offs', function (Blueprint $table) {
             $table->foreignUuid('employee_id')->after('uuid')->references('uuid')->on('employees');
-            $table->foreignId('accepted_by')->after('employee_id')->references('id')->on('users');
+            $table->foreignUuid('accepted_by')->after('employee_id')->references('uuid')->on('users');
         });
     }
 

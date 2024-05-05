@@ -48,6 +48,7 @@ class AuthenticatedSessionController extends Controller
                 'message' => 'Login successful. Welcome back!',
                 'data' => [
                     'id' => $user->value('uuid'),
+                    'employee_id' => $user->value('employee_id'),
                     'token' => $generateToken->plainTextToken,
                     'role' => $user->getRoleNames()->first(),
                 ]
