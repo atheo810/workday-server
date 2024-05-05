@@ -467,7 +467,7 @@ class PresenceController extends Controller
                         ->where('employees.uuid', $employeeId)
                         ->whereRaw('MONTH(presences.presence_date)="' . $month . '"')
                         ->orderBy('presences.presence_date', 'asc')
-                        ->select('presences.id', 'employees.uuid', 'employees.id as employee_id', 'presences.clock_in', 'presences.clock_out', 'presences.ip_address', 'presences.presence_date')
+                        ->select('presences.id', 'employees.uuid', 'employees.id as employee_id', 'presences.clock_in', 'presences.clock_out',  'presences.presence_date')
                         ->get()
                         ->groupBy('precense_date');
 
@@ -475,12 +475,12 @@ class PresenceController extends Controller
                     foreach ($historyPresenceByMonth as $history => $presences) {
 
                         $timeOffs = DB::table('time_offs')
-                            ->join('users', 'time_offs.accepted_by', '=', 'users.id')
-                            ->join('employees', 'time_offs.employee_id', '=', 'employees.id')
+                            ->join('users', 'time_offs.accepted_by', '=', 'users.uuid')
+                            ->join('employees', 'time_offs.employee_id', '=', 'employees.uuid')
                             ->where('employees.uuid', $request->employee_id)
                             ->whereRaw('YEAR(time_offs.start_date)="' . $startYear . '"')
                             ->whereRaw('MONTH(time_offs.start_date)="' . $month . '"')
-                            ->select('time_offs.id', 'time_offs.uuid', 'users.email as accepted_by', 'time_offs.title', 'time_offs.type', 'time_offs.start_date', 'time_offs.end_date', 'time_offs.status', 'time_offs.description', 'time_offs.document', 'time_offs.status', 'time_offs.total_days')
+                            ->select('time_offs.id', 'time_offs.uuid', 'users.email as accepted_by', 'time_offs.type', 'time_offs.start_date', 'time_offs.end_date', 'time_offs.status', 'time_offs.description', 'time_offs.document', 'time_offs.status', 'time_offs.total_days')
                             ->get();
 
                         $months[] = [
@@ -510,12 +510,12 @@ class PresenceController extends Controller
                         foreach ($historyPresenceByMonth as $history => $presences) {
 
                             $timeOffs = DB::table('time_offs')
-                                ->join('users', 'time_offs.accepted_by', '=', 'users.id')
-                                ->join('employees', 'time_offs.employee_id', '=', 'employees.id')
+                                ->join('users', 'time_offs.accepted_by', '=', 'users.uuid')
+                                ->join('employees', 'time_offs.employee_id', '=', 'employees.uuid')
                                 ->where('employees.uuid', $request->employee_id)
                                 ->whereRaw('YEAR(time_offs.start_date)="' . $year . '"')
                                 ->whereRaw('MONTH(time_offs.start_date)="' . $month . '"')
-                                ->select('time_offs.id', 'time_offs.uuid', 'users.email as accepted_by', 'time_offs.title', 'time_offs.type', 'time_offs.start_date', 'time_offs.end_date', 'time_offs.status', 'time_offs.description', 'time_offs.document', 'time_offs.status', 'time_offs.total_days')
+                                ->select('time_offs.id', 'time_offs.uuid', 'users.email as accepted_by',  'time_offs.type', 'time_offs.start_date', 'time_offs.end_date', 'time_offs.status', 'time_offs.description', 'time_offs.document', 'time_offs.status', 'time_offs.total_days')
                                 ->get();
 
                             $months[] = [
@@ -546,6 +546,15 @@ class PresenceController extends Controller
                 ],
                 'message' => 'Data presensi pegawai berhasil ditemukan',
             ]);
+
+            // urgently check if broken
+
+            // return response()->json([
+            //     'status' => 'success',
+            //     'code' => 200,
+            //     'data' => $months,
+            //     'message' => 'Data presensi pegawai berhasil ditemukan',
+            // ]);
         } catch (ValidationException $e) {
             return response()->json([
                 'code' => 422,
@@ -557,7 +566,7 @@ class PresenceController extends Controller
             return response()->json([
                 'code' => 404,
                 'status' => 'not found',
-                'data' => null,
+                'data' => $e->getMessage(),
                 'message' => 'data presensi tidak ada pada database',
             ], 404);
         }
