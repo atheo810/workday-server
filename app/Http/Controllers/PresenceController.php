@@ -387,46 +387,30 @@ class PresenceController extends Controller
 
             $pdf = Pdf::loadView('presenceAll', ['months' => $months])->setPaper('a4', 'portrait');
             $pdf->download()->getOriginalContent();
-            $dateTimeNow = new DateTime();
 
+            $dateTimeNow = new DateTime();
             $dateNow = $dateTimeNow->format('Y-m-d_H-i-s');
 
             $pdfpath = 'presenceById_' . $dateNow . '_all_employee' . '.pdf';
             Storage::disk('public')->put($pdfpath, $pdf->output());
 
-            $pdfFullPath = asset('storage/' . $pdfpath);
-            $pdfpath = $pdfFullPath;
+            $pdfFullPath = asset('storage/presence-recap/' . $pdfpath);
 
             return response()->json([
                 'status' => 'success',
                 'code' => 200,
                 'data' => [
-                    'url' => $pdfpath
+                    'url' => $pdfFullPath
                 ],
                 'message' => 'Data presensi pegawai berhasil ditemukan',
             ]);
-
-
-            // urgently check if broken
-
-            // return response()->json([
-            //     'status' => 'success',
-            //     'code' => 200,
-            //     'data' => $months,
-            //     'message' => 'Data presensi pegawai berhasil ditemukan',
-            // ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'code' => 422,
-                'status' => 'error',
-                'data' => null,
-                'message' => $e->getMessage(),
-            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'code' => 404,
-                'status' => $e->getMessage(),
-                'data' => null,
+                'status' => 'error',
+                'data' => [
+                    'error' => $e->getMessage(),
+                ],
                 'message' => 'tidak ada data sama sekali pada database',
             ], 404);
         }
@@ -529,43 +513,30 @@ class PresenceController extends Controller
             }
             $pdf = Pdf::loadView('presenceById', ['months' => $months, 'name' => $name])->setPaper('a4', 'portrait');
             $pdf->download()->getOriginalContent();
+
             $dateTimeNow = new DateTime();
             $dateNow = $dateTimeNow->format('Y-m-d_H-i-s');
-            Storage::disk('public')->put('presenceById_' . $dateNow . '_' .  $employeeId . '_' . '.pdf', $pdf->output());
+
             $pdfpath = 'presenceById_' . $dateNow . '_' .  $employeeId . '.pdf';
-            Storage::disk('public')->put($pdfpath, $pdf->output());
-            $pdfFullPath = asset('storage/' . $pdfpath);
-            $pdfpath = $pdfFullPath;
+            Storage::disk('public')->put('/presence-recap/' . $pdfpath, $pdf->output());
+
+            $pdfFullPath = asset('storage/presence-recap/' . $pdfpath);
 
             return response()->json([
                 'status' => 'success',
                 'code' => 200,
                 'data' => [
-                    'url' => $pdfpath
+                    'url' => $pdfFullPath
                 ],
                 'message' => 'Data presensi pegawai berhasil ditemukan',
             ]);
-
-            // urgently check if broken
-
-            // return response()->json([
-            //     'status' => 'success',
-            //     'code' => 200,
-            //     'data' => $months,
-            //     'message' => 'Data presensi pegawai berhasil ditemukan',
-            // ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'code' => 422,
-                'status' => 'error',
-                'data' => null,
-                'message' => $e->getMessage(),
-            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'code' => 404,
-                'status' => 'not found',
-                'data' => $e->getMessage(),
+                'status' => 'error',
+                'data' => [
+                    'error' => $e->getMessage(),
+                ],
                 'message' => 'data presensi tidak ada pada database',
             ], 404);
         }

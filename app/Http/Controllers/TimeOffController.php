@@ -59,7 +59,7 @@ class TimeOffController extends Controller
             $file = $request->file('file');
             $fileName = Cuid::make();
             $resultFile = $file
-                ? $file->storeAs('photos/presence', "{$fileName}.{$file->extension()}")
+                ? $file->storeAs('photos/timeoff', "{$fileName}.{$file->extension()}")
                 : null;
 
             $baseUrl = Storage::url($resultFile);
@@ -88,7 +88,6 @@ class TimeOffController extends Controller
             ], 500);
         }
     }
-
 
     /**
      * Store a newly created resource in storage.
