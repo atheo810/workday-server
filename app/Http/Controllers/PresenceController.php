@@ -390,7 +390,6 @@ class PresenceController extends Controller
             $dateTimeNow = new DateTime();
 
             $dateNow = $dateTimeNow->format('Y-m-d_H-i-s');
-            Storage::disk('public')->put('presenceById_' . $dateNow . '_' .  $employeeId . '_' . '.pdf', $pdf->output());
 
             $pdfpath = 'presenceById_' . $dateNow . '_all_employee' . '.pdf';
             Storage::disk('public')->put($pdfpath, $pdf->output());
