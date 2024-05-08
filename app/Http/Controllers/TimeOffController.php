@@ -58,18 +58,18 @@ class TimeOffController extends Controller
 
             $file = $request->file('file');
             $fileName = Cuid::make();
-            $resultFile = $file ?
-                $file->storeAs('/public/photos/employee-timeoff', "{$fileName}.{$file->extension()}")
+            $resultFile = $file
+                ? $file->storeAs('photos/presence', "{$fileName}.{$file->extension()}")
                 : null;
 
-            $base_url = asset('/storage/photos/employee-timeoff/' . "{$fileName}.{$file->extension()}");
+            $baseUrl = Storage::url($resultFile);
 
             return response()->json([
                 'code' => 200,
                 'status' => 'success',
                 'message' => 'Dokumen cuti berhasil diupload.',
                 'data' => [
-                    'url' => $base_url,
+                    'url' => $baseUrl,
                 ],
             ], 200);
         } catch (ValidationException $e) {
