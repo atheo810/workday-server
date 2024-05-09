@@ -53,36 +53,25 @@ class LocationOfficeController extends Controller
                 'latitude' => 'required|string',
                 'longitude' => 'required|string',
             ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'code' => 422,
-                'status' => 'error',
-                'errors' => [$e->errors()],
-                'message' => 'Data yang diberikan tidak valid.'
-            ], 422);
-        }
 
-        // Check if there is no a record in the database
-        if (!LocationOffice::first()) {
-            // create data location office
-            $locationOffice = LocationOffice::create([
-                'location_name' => $request->location_name,
-                'location_address' => $request->location_address,
-                'latitude' => $request->latitude,
-                'longitude' => $request->longitude,
-            ]);
+            // Check if there is no a record in the database
+            if (!LocationOffice::first()) {
+                // create data location office
+                $locationOffice = LocationOffice::create([
+                    'location_name' => $request->location_name,
+                    'location_address' => $request->location_address,
+                    'latitude' => $request->latitude,
+                    'longitude' => $request->longitude,
+                ]);
 
-            // return response if location office is created
-            return response()->json([
-                'code' => 201,
-                'status' => 'success',
-                'data' => $locationOffice,
-                'message' => 'Lokasi Kantor Berhasil dibuat.'
-            ], 200);
-        }
-
-        // Create or update location office
-        try {
+                // return response if location office is created
+                return response()->json([
+                    'code' => 201,
+                    'status' => 'success',
+                    'data' => $locationOffice,
+                    'message' => 'Lokasi Kantor Berhasil dibuat.'
+                ], 200);
+            }
             $locationOffice = LocationOffice::updateOrCreate(
                 ['id' => 1],
                 [
@@ -92,6 +81,20 @@ class LocationOfficeController extends Controller
                     'longitude' => $request->longitude,
                 ]
             );
+            // Return response if location office is created or updated
+            return response()->json([
+                'code' => 200,
+                'status' => 'success',
+                'data' => $locationOffice,
+                'message' => 'Lokasi kantor berhasil diperbarui.'
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'code' => 422,
+                'status' => 'error',
+                'errors' => [$e->errors()],
+                'message' => 'Data yang diberikan tidak valid.'
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'code' => 500,
@@ -100,15 +103,6 @@ class LocationOfficeController extends Controller
                 'message' => 'Gagal memperbarui lokasi kantor.'
             ], 500);
         }
-
-        // Return response if location office is created or updated
-        return response()->json([
-            'code' => 200,
-            'status' => 'success',
-            'data' => $locationOffice,
-            'message' => 'Lokasi kantor berhasil diperbarui.'
-        ], 200);
-
 
 
         // if location office is not created
