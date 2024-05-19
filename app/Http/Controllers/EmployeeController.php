@@ -130,10 +130,10 @@ class EmployeeController extends Controller
             $file = $request->file('file');
             $fileName = Cuid::make();
             $resultFile = $file
-                ? $file->storeAs('photos/employee', "{$fileName}.{$file->extension()}")
+                ? $file->storeAs('public/photos/employee', "{$fileName}.{$file->extension()}")
                 : null;
 
-            $baseUrl = Storage::url($resultFile);
+            $baseUrl = url(Storage::url($resultFile));
 
             return response()->json([
                 'code' => 200,
