@@ -25,10 +25,10 @@ class PresenceController extends Controller
             $file = $request->file('file');
             $fileName = Cuid::make();
             $resultFile = $file
-                ? $file->storeAs('photos/presence', "{$fileName}.{$file->extension()}")
+                ? $file->storeAs('public/photos/presence', "{$fileName}.{$file->extension()}")
                 : null;
 
-            $baseUrl = Storage::url($resultFile);
+            $baseUrl = url(Storage::url($resultFile));
 
             return response()->json([
                 'code' => 200,
@@ -175,7 +175,7 @@ class PresenceController extends Controller
                 ], 422);
             }
 
-            $currentLocationOffice = LocationOffice::find(1)
+            $currentLocationOffice = LocationOffice::first()
                 ->get(['latitude', 'longitude'])
                 ->first();
 
@@ -391,8 +391,8 @@ class PresenceController extends Controller
             $dateTimeNow = new DateTime();
             $dateNow = $dateTimeNow->format('Y-m-d_H-i-s');
 
-            $pdfpath = 'presenceById_' . $dateNow . '_all_employee' . '.pdf';
-            Storage::disk('public')->put($pdfpath, $pdf->output());
+            $pdfpath = 'presenceAll_' . $dateNow . '_all_employee' . '.pdf';
+            Storage::disk('public')->put('presence-recap/' . $pdfpath, $pdf->output());
 
             $pdfFullPath = asset('storage/presence-recap/' . $pdfpath);
 
