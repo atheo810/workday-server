@@ -150,7 +150,7 @@ class TimeOffController extends Controller
     {
         try {
             $timeOff = DB::table('time_offs')
-                ->get([
+                ->select([
                     'uuid', 'accepted_by', 'type', 'start_date', 'employee_id',
                     'end_date', 'description', 'document', 'status', 'total_days'
                 ])
