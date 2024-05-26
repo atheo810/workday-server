@@ -154,7 +154,8 @@ class TimeOffController extends Controller
                     'uuid', 'accepted_by', 'type', 'start_date', 'employee_id',
                     'end_date', 'description', 'document', 'status', 'total_days'
                 ])
-                ->where('employee_id', $employeeId);
+                ->where('employee_id', $employeeId)
+                ->get();
 
             if ($timeOff->isEmpty()) {
                 return response()->json([
