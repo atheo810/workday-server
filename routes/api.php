@@ -31,9 +31,7 @@ Route::get('/health', function () {
     ], 200);
 });
 
-Route::prefix('sv')->group(function () {
-    Route::get('/users/{key}/{userId}', [PrivateServiceController::class, 'getUsers'])->name('sv.users');
-});
+Route::get('/sv/users/{key}/{userId}', [PrivateServiceController::class, 'getUsers'])->name('sv.users');
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::middleware(['check.role:administrator,owner'])->group(function () {

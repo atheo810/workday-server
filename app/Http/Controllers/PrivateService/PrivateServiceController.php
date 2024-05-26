@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\PrivateService;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class PrivateServiceController extends Controller
@@ -21,14 +20,14 @@ class PrivateServiceController extends Controller
             }
 
             $users = DB::table('users')
-                ->join('employees', 'users.employee_id', '=', 'employees.id')
-                ->get([
+                ->join('employees', 'users.employee_id', '=', 'employees.uuid')
+                ->select([
                     'users.id', 'users.uuid', 'users.email', 'users.account_status', 'users.password',
-                    'employees.fullname', 'employees.position', 'users.is_deleted'
+                    'employees.fullname', 'employees.position', 'users.is_deleted',
                 ])
-                ->where('is_deleted', false)
-                ->where('account_status', 'active')
-                ->where('uuid', $userId)
+                ->where('users.is_deleted', false)
+                ->where('users.account_status', 'active')
+                ->where('users.uuid', $userId)
                 ->first();
 
             if (!$users) {

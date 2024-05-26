@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
     {
         User::create([
             'id' => 1,
-            'uuid' => 'clvsssbqo0001cuglboduvob4',
+            'uuid' => '0390f3125f5d5c93ea6d836ce381',
             'email' => 'owner@gmail.com',
             'password' => Hash::make('password'),
             'account_status' => 'active',
@@ -25,7 +25,7 @@ class UserSeeder extends Seeder
 
         User::create([
             'id' => 2,
-            'uuid' => 'clvsssbqo0001cuglboduvob5',
+            'uuid' => '0390f3125f5d5c93ea6d836ce382',
             'email' => 'admin@gmail.com',
             'password' => Hash::make('password'),
             'account_status' => 'active',

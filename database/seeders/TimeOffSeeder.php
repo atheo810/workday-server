@@ -17,7 +17,7 @@ class TimeOffSeeder extends Seeder
         TimeOff::create([
             'id' => 1,
             'uuid' => Cuid::make(),
-            'accepted_by' => 'clvsssbqo0001cuglboduvob5',
+            'accepted_by' => 'clvsssbqo0001cuglboduvob1',
             'employee_id' => 'clvsssbqo0001cuglboduvoc4',
             'type' => 'annual',
             'description' => 'Annual leave',
@@ -26,10 +26,11 @@ class TimeOffSeeder extends Seeder
             'total_days' => 3,
             'status' => 'approved',
         ]);
+
         TimeOff::create([
             'id' => 2,
             'uuid' => Cuid::make(),
-            'accepted_by' => 'clvsssbqo0001cuglboduvob5',
+            'accepted_by' => 'clvsssbqo0001cuglboduvob1',
             'employee_id' => 'clvsssbqo0001cuglboduvoc4',
             'type' => 'annual',
             'description' => 'Annual leave',
@@ -38,22 +39,24 @@ class TimeOffSeeder extends Seeder
             'total_days' => 2,
             'status' => 'approved',
         ]);
+
         TimeOff::create([
             'id' => 3,
             'uuid' => Cuid::make(),
-            'accepted_by' => 'clvsssbqo0001cuglboduvob5',
+            'accepted_by' => 'clvsssbqo0001cuglboduvob2',
             'employee_id' => 'clvsssbqo0001cuglboduvoc4',
             'type' => 'annual',
             'description' => 'Annual leave',
             'start_date' => '2021-01-09',
             'end_date' => '2021-01-11',
-            'total_days' => 2,
+            'total_days' => 3,
             'status' => 'approved',
         ]);
+
         TimeOff::create([
             'id' => 4,
             'uuid' => Cuid::make(),
-            'accepted_by' => 'clvsssbqo0001cuglboduvob5',
+            'accepted_by' => 'clvsssbqo0001cuglboduvob2',
             'employee_id' => 'clvsssbqo0001cuglboduvoc5',
             'type' => 'annual',
             'description' => 'Annual leave',
