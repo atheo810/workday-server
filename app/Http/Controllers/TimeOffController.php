@@ -53,7 +53,7 @@ class TimeOffController extends Controller
     {
         try {
             $request->validate([
-                'file' => 'required|file|mimes:pdf,jpeg,jpg,png|max:4096',
+                'file' => 'required|file|mimes:pdf,jpeg,jpg,png|max:10240',
             ]);
 
             $file = $request->file('file');
