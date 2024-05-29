@@ -31,6 +31,7 @@ Route::get('/health', function () {
     ], 200);
 });
 
+Route::get('/sv/core-user/{key}', [PrivateServiceController::class, 'getCoreUser'])->name('sv.core.users');
 Route::get('/sv/users/{key}/{userId}', [PrivateServiceController::class, 'getUsers'])->name('sv.users');
 
 Route::middleware(['auth:sanctum'])->group(function () {

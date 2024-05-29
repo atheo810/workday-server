@@ -76,7 +76,6 @@ class UserController extends Controller
         'password' => 'required|string|min:8',
         'employee_id' => 'required|string',
         'account_status' => 'string|in:active,inactive',
-        'position' => 'required|string|in:administrator,owner,head-machanic,mechanic,cleaner,office'
       ], [
         'email.required' => 'Email harus diisi',
         'email.email' => 'Email tidak valid',
@@ -87,6 +86,10 @@ class UserController extends Controller
       ]);
 
       DB::transaction(function () use ($request) {
+        $currentPosition = DB::table('employees')
+          ->where('uuid', $request->employee_id)
+          ->value('position');
+
         $userId = $this->insertUser([
           'uuid' => Cuid::make(),
           'email' => strtolower($request->email),
@@ -96,7 +99,7 @@ class UserController extends Controller
         ]);
 
         $currentUser = User::find($userId);
-        $currentUser->assignRole($request->position);
+        $currentUser->assignRole($currentPosition);
       });
 
       return response()->json([
