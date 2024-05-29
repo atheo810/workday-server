@@ -19,8 +19,8 @@ return new class extends Migration
                 'sick_with_docs', 'holiday', 'unpaid',
                 'special_permit'
             ]);
-            $table->timestamp('start_date');
-            $table->timestamp('end_date');
+            $table->date('start_date');
+            $table->date('end_date');
             $table->text('description');
             $table->string('document')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
