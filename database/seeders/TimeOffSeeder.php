@@ -65,5 +65,18 @@ class TimeOffSeeder extends Seeder
             'total_days' => 1,
             'status' => 'approved',
         ]);
+
+        TimeOff::create([
+            'id' => 4,
+            'uuid' => Cuid::make(),
+            'accepted_by' => '0390f3125f5d5c93ea6d836ce381',
+            'employee_id' => 'clvsssbqo0001cuglboduvoc5',
+            'type' => 'annual',
+            'description' => 'Bolos Aku Bang. Papale',
+            'start_date' => '2021-01-15',
+            'end_date' => '2021-01-15',
+            'total_days' => 9,
+            'status' => 'rejected',
+        ]);
     }
 }

@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
-use PhpParser\Node\Stmt\TryCatch;
 
 class TimeOffController extends Controller
 {
@@ -222,7 +221,6 @@ class TimeOffController extends Controller
                 'end_date' => 'required|date',
                 'description' => 'required|string',
                 'document' => 'nullable|string',
-                'total_days' => 'required|integer',
             ]);
 
             $timeOff = TimeOff::where('uuid', $uuid)->first();

@@ -103,48 +103,13 @@ class LocationOfficeController extends Controller
                 'message' => 'Gagal memperbarui lokasi kantor.'
             ], 500);
         }
-
-
-        // if location office is not created
-        // if (!$locationOffice) {
-        //     return response()->json([
-        //         'code' => 500,
-        //         'status' => 'error',
-        //         'data' => [
-        //             'location' => null,
-        //         ],
-        //         'message' => 'Gagal menambahkan lokasi kantor.'
-        //     ], 500);
-        // }
-
-
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(LocationOffice $locationOffice)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(LocationOffice $locationOffice)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $locationOffice)
     {
-        // get location office
         $createLocationOffice = DB::table('location_offices')->find($locationOffice);
 
-        // if location office is not found
         if (!$createLocationOffice) {
             return response()->json([
                 'code' => 404,
@@ -156,7 +121,6 @@ class LocationOfficeController extends Controller
             ], 404);
         }
 
-        // try catch validate the request
         try {
             $request->validate([
                 'location_name' => 'required|string',
@@ -173,13 +137,10 @@ class LocationOfficeController extends Controller
             ], 422);
         }
 
-
-
-        // update location office
         try {
             DB::table('location_offices')
                 ->updateOrInsert(
-                    ['id' => $createLocationOffice->id], // Assuming $createLocationOffice is an instance of LocationOffice
+                    ['id' => $createLocationOffice->id],
                     [
                         'location_name' => $request->location_name,
                         'location_address' => $request->location_address,
@@ -203,13 +164,5 @@ class LocationOfficeController extends Controller
             'data' => $createLocationOffice,
             'message' => 'Lokasi kantor berhasil diperbahrui.'
         ], 200);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(LocationOffice $locationOffice)
-    {
-        //
     }
 }

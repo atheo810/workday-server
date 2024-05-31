@@ -120,8 +120,6 @@ class PresenceController extends Controller
                 ], 404);
             }
 
-            // $currentPresence = $presenceUser->count();
-
             $isAlreadyClockIn = $findPresence->clock_in
                 && $findPresence->latitude_in
                 && $findPresence->longitude_in
@@ -177,7 +175,7 @@ class PresenceController extends Controller
                     'code' => 422,
                     'status' => 'error',
                     'data' => null,
-                    'message' => 'Query parameter emtime_formatpl_id dibutuhkan!',
+                    'message' => 'Query parameter empl_id dibutuhkan!',
                 ], 422);
             }
 
@@ -195,7 +193,7 @@ class PresenceController extends Controller
             }
 
             $presenceDate = date('Y-m-d');
-            $createdBy = auth()->user()->id;
+            // $createdBy = auth()->user()->id;
             $uuid = Cuid::make();
 
             $checkIsAlreadyCheckIn = Presence::where('employee_id', $employeeIdQuery)
@@ -209,12 +207,13 @@ class PresenceController extends Controller
                     $currentLocationOffice->latitude,
                     $currentLocationOffice->longitude
                 );
+
                 if ($distanceOut > 100) {
                     return response()->json([
                         'code' => 422,
                         'status' => 'error',
                         'data' => null,
-                        'message' => 'Lokasi kamu diluar jangkauan 100 meter',
+                        'message' => 'Lokasi kamu diluar jangkauan 100 meter',
                     ], 422);
                 }
 
