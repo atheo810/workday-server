@@ -16,12 +16,12 @@ class TimeOffController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
             $timeOff = DB::table('time_offs')
                 ->select([
-                    'id', 'uuid', 'accepted_by', 'type', 'start_date',
+                    'id', 'uuid', 'accepted_by', 'type', 'start_date', 'timeoff_created_at',
                     'end_date', 'description', 'document', 'status', 'total_days'
                 ])->get();
 
@@ -166,16 +166,22 @@ class TimeOffController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $employeeId)
+    public function show(Request $request, string $employeeId)
     {
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
         try {
-            $timeOff = DB::table('time_offs')
+            $query = DB::table('time_offs')
                 ->select([
                     'uuid', 'accepted_by', 'type', 'start_date', 'employee_id',
                     'end_date', 'description', 'document', 'status', 'total_days'
                 ])
-                ->where('employee_id', $employeeId)
-                ->get();
+                ->where('employee_id', $employeeId);
+
+            $timeOff = $startDate && $endDate
+                ? $query->whereBetween('timeoff_created_at', [$startDate, $endDate])->get()
+                : $query->get();
 
             if ($timeOff->isEmpty()) {
                 return response()->json([

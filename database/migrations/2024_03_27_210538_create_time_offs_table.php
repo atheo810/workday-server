@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('document')->nullable();
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->integer('total_days');
+            $table->date('timeoff_created_at')->default(now());
             $table->timestamps();
             $table->softDeletes();
         });

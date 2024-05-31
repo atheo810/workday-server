@@ -48,12 +48,18 @@ class PresenceController extends Controller
         }
     }
 
-    public function getHistoryEmployeePresence(string $employee_id)
+    public function getHistoryEmployeePresence(Request $request, string $employee_id)
     {
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
         try {
-            $presences = DB::table('presences')
-                ->get()
+            $query = DB::table('presences')
                 ->where('employee_id', $employee_id);
+
+            $presences = $startDate && $endDate
+                ? $query->whereBetween('presence_date', [$startDate, $endDate])->get()
+                : $query->get();
 
             if ($presences->isEmpty()) {
                 return response()->json([
