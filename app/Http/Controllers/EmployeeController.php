@@ -79,14 +79,15 @@ class EmployeeController extends Controller
     {
         try {
             $employees = DB::table('employees')
-                ->get([
+                ->select([
                     'id', 'uuid', 'fullname', 'gender',
                     'position', 'phone_number', 'avatar',
                     'address', 'joined_company_at', 'status',
                     'is_deleted'
                 ])
                 ->where('is_deleted', false)
-                ->where('status', 'active');
+                ->where('status', 'active')
+                ->get();
 
             if ($employees->isEmpty()) {
                 return response()->json([
@@ -111,13 +112,6 @@ class EmployeeController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
     }
 
     public function uploadFile(Request $request)
@@ -256,16 +250,6 @@ class EmployeeController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $employeeUuid)
-    {
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $employee_id)
     {
         try {
@@ -275,7 +259,7 @@ class EmployeeController extends Controller
                     'gender' => 'required|in:laki-laki,perempuan',
                     'position' => 'required|in:owner,administrator,head-mechanic,mechanic,cleaner,office-boy,security',
                     'address' => 'nullable|string',
-                    'joined_company_at' =>  'nullable|string',
+                    'joined_company_at' => 'nullable|string',
                     'avatar' => 'nullable|string',
                     'phone_number' => 'nullable|string',
                 ],

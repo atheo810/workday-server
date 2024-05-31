@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TimeOff;
 use CaliCastle\Cuid;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -19,10 +20,10 @@ class TimeOffController extends Controller
     {
         try {
             $timeOff = DB::table('time_offs')
-                ->get([
+                ->select([
                     'id', 'uuid', 'accepted_by', 'type', 'start_date',
                     'end_date', 'description', 'document', 'status', 'total_days'
-                ]);
+                ])->get();
 
             if ($timeOff->isEmpty()) {
                 return response()->json([
@@ -103,11 +104,30 @@ class TimeOffController extends Controller
                 'end_date' => 'required|date',
                 'description' => 'required|string',
                 'document' => 'nullable|string',
-                'total_days' => 'required|integer',
             ]);
 
-            $uuid = Cuid::make();
+            $startDate = Carbon::parse($request->start_date);
+            $endDate = Carbon::parse($request->end_date);
 
+            if ($startDate->greaterThan($endDate)) {
+                return response()->json([
+                    'code' => 422,
+                    'status' => 'error',
+                    'message' => 'Tanggal mulai tidak boleh lebih besar dari tanggal selesai.',
+                    'data' => null,
+                ], 422);
+            } else if ($endDate->lessThan($startDate)) {
+                return response()->json([
+                    'code' => 422,
+                    'status' => 'error',
+                    'message' => 'Tanggal selesai tidak boleh lebih kecil dari tanggal mulai.',
+                    'data' => null,
+                ], 422);
+            }
+
+            $totalDays = $endDate->diffInDays($startDate) + 1;
+
+            $uuid = Cuid::make();
             TimeOff::create([
                 'uuid' => $uuid,
                 'employee_id' => $request->employee_id,
@@ -117,7 +137,7 @@ class TimeOffController extends Controller
                 'end_date' => $request->end_date,
                 'description' => $request->description,
                 'document' => $request->document,
-                'total_days' => $request->total_days,
+                'total_days' => $totalDays,
             ]);
 
             return response()->json([
@@ -199,7 +219,7 @@ class TimeOffController extends Controller
                 'total_days' => 'required|integer',
             ]);
 
-            $timeOff = TimeOff::where('uuid', $uuid)->get()->first();
+            $timeOff = TimeOff::where('uuid', $uuid)->first();
 
             if (!$timeOff) {
                 return response()->json([
@@ -210,6 +230,27 @@ class TimeOffController extends Controller
                 ], 404);
             }
 
+            $startDate = Carbon::parse($request->start_date);
+            $endDate = Carbon::parse($request->end_date);
+
+            if ($startDate->greaterThan($endDate)) {
+                return response()->json([
+                    'code' => 422,
+                    'status' => 'error',
+                    'message' => 'Tanggal mulai tidak boleh lebih besar dari tanggal selesai.',
+                    'data' => null,
+                ], 422);
+            } else if ($endDate->lessThan($startDate)) {
+                return response()->json([
+                    'code' => 422,
+                    'status' => 'error',
+                    'message' => 'Tanggal selesai tidak boleh lebih kecil dari tanggal mulai.',
+                    'data' => null,
+                ], 422);
+            }
+
+            $totalDays = $endDate->diffInDays($startDate) + 1;
+
             $timeOff->update([
                 'employee_id' => (string) $request->employee_id,
                 'accepted_by' => (string) $request->accepted_by,
@@ -218,9 +259,8 @@ class TimeOffController extends Controller
                 'end_date' => $request->end_date,
                 'description' => $request->description,
                 'document' => $request->document,
-                'total_days' => (int) $request->total_days,
+                'total_days' => (int) $totalDays,
             ]);
-
 
             return response()->json([
                 'code' => 200,
@@ -245,19 +285,6 @@ class TimeOffController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(TimeOff $timeOff)
-    {
-        //
-    }
-
-    // Recovery Data
-    public function recovery(string $timeOff)
-    {
-    }
-
     public function validateStatusTimeOff(Request $request, string $uuid)
     {
         try {
@@ -266,6 +293,7 @@ class TimeOffController extends Controller
             ]);
 
             $timeOff = TimeOff::where('uuid', $uuid)->first();
+
             if (!$timeOff) {
                 return response()->json([
                     'code' => 404,
@@ -274,18 +302,11 @@ class TimeOffController extends Controller
                     'data' => null,
                 ], 404);
             }
+
             $timeOff->update([
                 'status' => $request->status,
             ]);
 
-            if (!$timeOff) {
-                return response()->json([
-                    'code' => 404,
-                    'status' => 'error',
-                    'message' => 'Data gagal di update.',
-                    'data' => null,
-                ], 404);
-            }
             return response()->json([
                 'code' => 200,
                 'status' => 'success',
