@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LocationOfficeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,8 @@ Route::get('/sv/users/{key}/{userId}', [PrivateServiceController::class, 'getUse
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::middleware(['check.role:administrator,owner'])->group(function () {
+        Route::get('/all-information', [DashboardController::class, 'getAllInformation'])->name('all-information');
+
         // ============ *** GENERAL *** ============
         Route::get('/roles', [EmployeeController::class, 'getRoles'])->name('employee.roles');
         Route::get('/not-registered-employees', [EmployeeController::class, 'getNotRegisteredEmployees'])

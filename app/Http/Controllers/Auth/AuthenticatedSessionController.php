@@ -38,7 +38,7 @@ class AuthenticatedSessionController extends Controller
 
             $user->tokens()->delete();
             $generateToken = $user->createToken(
-                name: $user->value('uuid'),
+                name: $user->uuid,
                 expiresAt: now()->addDay(1)
             );
 
@@ -47,8 +47,8 @@ class AuthenticatedSessionController extends Controller
                 'code' => 200,
                 'message' => 'Login successful. Welcome back!',
                 'data' => [
-                    'id' => $user->value('uuid'),
-                    'employee_id' => $user->value('employee_id'),
+                    'id' => $user->uuid,
+                    'employee_id' => $user->employee_id,
                     'token' => $generateToken->plainTextToken,
                     'role' => $user->getRoleNames()->first(),
                 ]
