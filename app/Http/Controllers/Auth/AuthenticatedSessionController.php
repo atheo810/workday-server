@@ -99,6 +99,7 @@ class AuthenticatedSessionController extends Controller
                 ->first();
 
             $employeeData = array_merge([
+                'user_id' => auth()->user()->uuid,
                 'email' => $currentEmail,
                 'account_status' => $currentAccountStatus,
                 'total_presences' => $totalPresences,
