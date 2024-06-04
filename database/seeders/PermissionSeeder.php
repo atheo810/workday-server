@@ -43,8 +43,8 @@ class PermissionSeeder extends Seeder
             'name' => 'security'
         ]);
 
-        $currentOwner = User::find(1);
-        $currentAdmin = User::find(2);
+        $currentAdmin = User::find(1);
+        $currentOwner = User::find(2);
 
         // $currentSecurity = User::find(3);
 
