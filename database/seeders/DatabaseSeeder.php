@@ -16,5 +16,6 @@ class DatabaseSeeder extends Seeder
         $this->call([EmployeeSeeder::class, UserSeeder::class, PresenseSeeder::class,]);
         $this->call(PermissionSeeder::class);
         $this->call(TimeOffSeeder::class);
+        $this->call(FirebaseUserSeeder::class);
     }
 }

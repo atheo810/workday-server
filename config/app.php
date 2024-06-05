@@ -170,6 +170,7 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         Spatie\Permission\PermissionServiceProvider::class,
+        Kreait\Laravel\Firebase\ServiceProvider::class,
     ])->toArray(),
 
     /*
