@@ -28,7 +28,7 @@ class AuthenticatedSessionController extends Controller
                 ], Response::HTTP_UNAUTHORIZED);
             }
 
-            if (!auth()->user()->hasRole('administrator|owner')) {
+            if (!auth()->user()->hasRole('administrator|owner') && $request->platform === 'web') {
                 return response()->json([
                     'message' => 'Akses ditolak. Anda tidak memiliki izin untuk mengakses resource ini.'
                 ], Response::HTTP_FORBIDDEN);
@@ -92,7 +92,7 @@ class AuthenticatedSessionController extends Controller
 
             $employee = DB::table('employees')
                 ->get([
-                    'uuid', 'id', 'fullname', 'position', 'phone_number', 'avatar',
+                    'uuid', 'fullname', 'position', 'phone_number', 'avatar',
                     'address', 'joined_company_at', 'created_at'
                 ])
                 ->where('uuid', $currentEmployeeId)
@@ -100,6 +100,7 @@ class AuthenticatedSessionController extends Controller
 
             $employeeData = array_merge([
                 'user_id' => auth()->user()->uuid,
+                'is_regis' => auth()->user()->is_regis,
                 'email' => $currentEmail,
                 'account_status' => $currentAccountStatus,
                 'total_presences' => $totalPresences,

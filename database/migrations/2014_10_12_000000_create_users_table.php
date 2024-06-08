@@ -20,6 +20,7 @@ return new class extends Migration
             $table->enum('account_status', ['active', 'inactive'])->default('active');
             $table->rememberToken();
             $table->boolean('is_deleted')->default(false);
+            $table->boolean('is_regis')->default(false);
             $table->timestamps();
             $table->softDeletes();
         });

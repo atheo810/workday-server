@@ -22,7 +22,7 @@ class UserController extends Controller
                 ->join('employees', 'users.employee_id', '=', 'employees.uuid')
                 ->get([
                     'users.id', 'users.uuid', 'users.email', 'users.account_status',
-                    'employees.fullname', 'employees.position', 'users.is_deleted'
+                    'employees.fullname', 'employees.position', 'users.is_deleted', 'users.password'
                 ])
                 ->where('is_deleted', false)
                 ->where('account_status', 'active');
@@ -81,22 +81,25 @@ class UserController extends Controller
                     ->where('uuid', $request->employee_id)
                     ->first();
 
+                $userUuid = Cuid::make();
+
                 $userId = $this->insertUser([
-                    'uuid' => Cuid::make(),
+                    'uuid' => $userUuid,
                     'email' => strtolower($request->email),
                     'password' => Hash::make($request->password),
                     'employee_id' => $request->employee_id,
                     'account_status' => 'active'
                 ]);
 
-                FirebaseServices::insertNew('users', [
-                    'user_id' => $userId,
-                    'email' => strtolower($request->email),
-                    'account_status' => 'active',
-                    'fullname' => $currentEmployee->fullname,
-                    'position' => $currentEmployee->position,
-                    'avatar' => $currentEmployee->avatar
-                ]);
+                // FirebaseServices::insertNew('users', [
+                //     'user_id' => $userUuid,
+                //     'email' => strtolower($request->email),
+                //     'account_status' => 'active',
+                //     'fullname' => $currentEmployee->fullname,
+                //     'position' => $currentEmployee->position,
+                //     'avatar' => $currentEmployee->avatar,
+                //     'password' => Hash::make($request->password),
+                // ]);
 
                 $currentUser = User::find($userId);
                 $currentUser->assignRole($currentEmployee->position);
@@ -144,16 +147,7 @@ class UserController extends Controller
         ], 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $userUuid)
-    {
-    }
 
-    /*
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $userUUID)
     {
         $request->validate([
@@ -225,15 +219,18 @@ class UserController extends Controller
         }
     }
 
-    // public function recovery(string $userUuid)
-    // {
-    //     User::where('uuid', $userUuid)->update([
-    //         'is_deleted' => false,
-    //         'account_status' => 'active',
-    //     ]);
+    public function isSigned(string $userId)
+    {
+        $currentUser = User::where('uuid', $userId)->first();
+        $currentUser->update([
+            'is_regis' => 1
+        ]);
 
-    //     return redirect()
-    //         ->route('admin.manage-user')
-    //         ->with('success', 'User berhasil direstore!');
-    // }
+        return response()->json([
+            'code' => 200,
+            'status' => 'success',
+            'data' => null,
+            'message' => 'User berhasil terdaftar di chat-apps'
+        ], 200);
+    }
 }

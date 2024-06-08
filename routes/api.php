@@ -32,9 +32,6 @@ Route::get('/health', function () {
     ], 200);
 });
 
-Route::get('/sv/core-user/{key}', [PrivateServiceController::class, 'getCoreUser'])->name('sv.core.users');
-Route::get('/sv/users/{key}/{userId}', [PrivateServiceController::class, 'getUsers'])->name('sv.users');
-
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::middleware(['check.role:administrator,owner'])->group(function () {
         Route::get('/all-information', [DashboardController::class, 'getAllInformation'])->name('all-information');
@@ -71,6 +68,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::middleware(['check.role:administrator,owner,head-machanic,mechanic,cleaner,office-boy,security'])->group(function () {
+        Route::patch('/is-signed/{user_id}', [UserController::class, 'isSigned'])->name('user.is-signed');
+
         // ============ *** EMPLOYEE PRESENCE *** ============
         Route::post('/upload/presence/employee', [PresenceController::class, 'uploadFile'])->name('employee-presence.upload-file');
         Route::get('/history-presences/{employee_id}', [PresenceController::class, 'getHistoryEmployeePresence'])->name('employee.history.presence.index');
