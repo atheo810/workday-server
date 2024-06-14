@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('location_address');
             $table->string('latitude');
             $table->string('longitude');
+            $table->boolean('is_edit')->default(false);
             $table->timestamps();
         });
     }

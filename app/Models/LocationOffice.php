@@ -12,10 +12,8 @@ class LocationOffice extends Model
     // Define the table name
     protected $table = 'location_offices';
     // Define the fill able columns
-    protected $fillable = [
-        'location_name',
-        'location_address',
-        'latitude',
-        'longitude',
+    protected $guarded = [
+        'created_at',
+        'updated_at',
     ];
 }

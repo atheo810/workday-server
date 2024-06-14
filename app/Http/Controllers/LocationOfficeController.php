@@ -52,6 +52,7 @@ class LocationOfficeController extends Controller
                 'location_address' => 'required|string',
                 'latitude' => 'required|string',
                 'longitude' => 'required|string',
+                'is_edit' => 'required|boolean'
             ]);
 
             // Check if there is no a record in the database
@@ -72,6 +73,7 @@ class LocationOfficeController extends Controller
                     'message' => 'Lokasi Kantor Berhasil dibuat.'
                 ], 200);
             }
+
             $locationOffice = LocationOffice::updateOrCreate(
                 ['id' => 1],
                 [
@@ -79,6 +81,7 @@ class LocationOfficeController extends Controller
                     'location_address' => $request->location_address,
                     'latitude' => $request->latitude,
                     'longitude' => $request->longitude,
+                    'is_edit' => $request->is_edit
                 ]
             );
             // Return response if location office is created or updated
@@ -92,7 +95,7 @@ class LocationOfficeController extends Controller
             return response()->json([
                 'code' => 422,
                 'status' => 'error',
-                'errors' => [$e->errors()],
+                'errors' => $e->errors(),
                 'message' => 'Data yang diberikan tidak valid.'
             ], 422);
         } catch (\Exception $e) {
