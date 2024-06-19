@@ -241,14 +241,14 @@ class PresenceController extends Controller
                     $currentLocationOffice->longitude
                 );
 
-                if ($distanceIn > 100) {
-                    return response()->json([
-                        'code' => 422,
-                        'status' => 'error',
-                        'data' => null,
-                        'message' => 'Lokasi kamu diluar jangkauan 100 meter',
-                    ], 422);
-                }
+                // if ($distanceIn > 100) {
+                //     return response()->json([
+                //         'code' => 422,
+                //         'status' => 'error',
+                //         'data' => null,
+                //         'message' => 'Lokasi kamu diluar jangkauan 100 meter',
+                //     ], 422);
+                // }
 
                 Presence::create([
                     'uuid' => $uuid,
