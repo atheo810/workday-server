@@ -208,14 +208,14 @@ class PresenceController extends Controller
                     $currentLocationOffice->longitude
                 );
 
-                if ($distanceOut > 100) {
-                    return response()->json([
-                        'code' => 422,
-                        'status' => 'error',
-                        'data' => null,
-                        'message' => 'Lokasi kamu diluar jangkauan 100 meter',
-                    ], 422);
-                }
+                // if ($distanceOut > 100) {
+                //     return response()->json([
+                //         'code' => 422,
+                //         'status' => 'error',
+                //         'data' => null,
+                //         'message' => 'Lokasi kamu diluar jangkauan 100 meter',
+                //     ], 422);
+                // }
 
                 Presence::where('employee_id', $employeeIdQuery)
                     ->where('presence_date', $presenceDate)
