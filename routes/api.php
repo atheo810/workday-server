@@ -34,6 +34,9 @@ Route::get('/health', function () {
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/profile', [AuthenticatedSessionController::class, 'getProfile'])
+        ->name('auth.get-profile');
+
     Route::middleware(['check.role:administrator,owner'])->group(function () {
         Route::get('/all-information', [DashboardController::class, 'getAllInformation'])->name('all-information');
 
@@ -69,9 +72,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::middleware(['check.role:administrator,owner,head-machanic,mechanic,cleaner,office-boy,security'])->group(function () {
-        Route::get('/profile', [AuthenticatedSessionController::class, 'getProfile'])
-            ->name('auth.get-profile');
-
         Route::patch('/is-signed/{user_id}', [UserController::class, 'isSigned'])->name('user.is-signed');
 
         // ============ *** EMPLOYEE PRESENCE *** ============
