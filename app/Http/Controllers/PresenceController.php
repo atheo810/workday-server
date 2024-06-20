@@ -86,13 +86,14 @@ class PresenceController extends Controller
         }
     }
 
-    public function calculateDistance($officeLatitude, $officeLongitude, $currentLatitude, $currentLongitude)
+    public function calculateDistance($currentLatitude, $currentLongitude, $officeLatitude, $officeLongitude)
     {
+        // $diameter = 0.017453292519943295;
         $earthRadius = 6371000; // Radius of Earth in meters
-        $latFrom = deg2rad($officeLatitude);
-        $lonFrom = deg2rad($officeLongitude);
-        $latTo = deg2rad($currentLatitude);
-        $lonTo = deg2rad($currentLongitude);
+        $latFrom = deg2rad($currentLatitude);
+        $lonFrom = deg2rad($currentLongitude);
+        $latTo = deg2rad($officeLatitude);
+        $lonTo = deg2rad($officeLongitude);
 
         $latDelta = $latTo - $latFrom;
         $lonDelta = $lonTo - $lonFrom;
