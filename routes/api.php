@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LocationOfficeController;
 use Illuminate\Http\Request;
@@ -68,6 +69,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::middleware(['check.role:administrator,owner,head-machanic,mechanic,cleaner,office-boy,security'])->group(function () {
+        Route::get('/profile', [AuthenticatedSessionController::class, 'getProfile'])
+            ->name('auth.get-profile');
+
         Route::patch('/is-signed/{user_id}', [UserController::class, 'isSigned'])->name('user.is-signed');
 
         // ============ *** EMPLOYEE PRESENCE *** ============
