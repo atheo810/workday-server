@@ -234,8 +234,10 @@ class PresenceController extends Controller
                 return response()->json([
                     'code' => 200,
                     'status' => 'success',
-                    'data' => null,
-                    'message' => 'Presensi pegawai keluar berhasil disimpan',
+                    'data' => [
+                        'distance' => "Jarak mu berada $distanceOut meter",
+                    ],
+                    'message' => '[PRESENCE OUT] Presensi pegawai keluar berhasil disimpan',
                 ], 200);
             } else {
                 $distanceIn = $this->calculateDistance(
@@ -272,8 +274,10 @@ class PresenceController extends Controller
                 return response()->json([
                     'code' => 201,
                     'status' => 'success',
-                    'data' => null,
-                    'message' => 'Presensi pegawai masuk berhasil disimpan',
+                    'data' => [
+                        'distance' => "Jarak mu berada $distanceIn meter",
+                    ],
+                    'message' => '[PRESENCE OUT] Presensi pegawai keluar berhasil disimpan',
                 ], 201);
             }
         } catch (ValidationException $e) {
