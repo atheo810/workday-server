@@ -154,23 +154,18 @@ class PresenceController extends Controller
         }
     }
 
-    public function employeePresences(Request $request)
+    public function employeePresencesIn(Request $request)
     {
         try {
             $employeeIdQuery = $request->query('empl_id');
 
             $request->validate([
-                'clock_in' => 'string',
-                'clok_out' => 'string',
-                'ip_address' => 'string',
+                'clock_in' => 'required|string',
+                'ip_address' => 'required|string',
                 'device' => 'string|in:web,android,ios',
-                'latitude_in' => 'string',
-                'longitude_in' => 'string',
-                'latitude_out' => 'string',
-                'longitude_out' => 'string',
-                'employee_id' => 'string',
+                'latitude_in' => 'required|string',
+                'longitude_in' => 'required|string',
                 'photo_in' => 'string',
-                'photo_out' => 'string',
             ]);
 
             if (!$employeeIdQuery) {
@@ -203,9 +198,115 @@ class PresenceController extends Controller
                 ->count();
 
             if ($checkIsAlreadyCheckIn > 0) {
+                return response()->json([
+                    'code' => 422,
+                    'status' => 'error',
+                    'data' => null,
+                    'message' => 'Pegawai sudah melakukan presensi masuk hari ini',
+                ], 422);
+            }
+
+            $distanceIn = $this->calculateDistance(
+                floatval($request->latitude_in),
+                floatval($request->longitude_in),
+                floatval($currentLocationOffice->latitude),
+                floatval($currentLocationOffice->longitude)
+            );
+
+            if ($distanceIn > 100) {
+                return response()->json([
+                    'code' => 422,
+                    'status' => 'error',
+                    'data' => [
+                        'distance' => "Jarak mu berada $distanceIn meter",
+                    ],
+                    'message' => '[PRESENCE IN] Lokasi kamu diluar jangkauan 100 meter',
+                ], 422);
+            }
+
+            Presence::create([
+                'uuid' => $uuid,
+                'employee_id' => $employeeIdQuery,
+                'clock_in' => $request->clock_in,
+                'ip_address' => $request->ip_address,
+                'device' => $request->device,
+                'latitude_in' => $request->latitude_in,
+                'longitude_in' => $request->longitude_in,
+                'distance_in' => $distanceIn,
+                'photo_in' => $request->photo_in,
+                'presence_date' => $presenceDate,
+            ]);
+
+            return response()->json([
+                'code' => 201,
+                'status' => 'success',
+                'data' => [
+                    'distance' => "Jarak mu berada $distanceIn meter",
+                ],
+                'message' => '[PRESENCE IN] Presensi pegawai keluar berhasil disimpan',
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'code' => 422,
+                'status' => 'error',
+                'data' => null,
+                'message' => $e->getMessage(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'code' => 500,
+                'status' => 'error',
+                'data' => null,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function employeePresencesOut(Request $request)
+    {
+        try {
+            $employeeIdQuery = $request->query('empl_id');
+
+            $request->validate([
+                'clock_out' => 'required|string',
+                'device' => 'string|in:web,android,ios',
+                'latitude_out' => 'required|string',
+                'longitude_out' => 'required|string',
+                'photo_out' => 'string',
+            ]);
+
+            if (!$employeeIdQuery) {
+                return response()->json([
+                    'code' => 422,
+                    'status' => 'error',
+                    'data' => null,
+                    'message' => 'Query parameter empl_id dibutuhkan!',
+                ], 422);
+            }
+
+            $currentLocationOffice = LocationOffice::first()
+                ->get(['latitude', 'longitude'])
+                ->first();
+
+            if (!$currentLocationOffice) {
+                return response()->json([
+                    'code' => 404,
+                    'status' => 'error',
+                    'data' => null,
+                    'message' => 'Office location not found',
+                ], 404);
+            }
+
+            $presenceDate = date('Y-m-d');
+
+            $checkIsAlreadyCheckIn = Presence::where('employee_id', $employeeIdQuery)
+                ->where('presence_date', $presenceDate)
+                ->count();
+
+            if ($checkIsAlreadyCheckIn > 0) {
                 $distanceOut = $this->calculateDistance(
-                    floatval($request->latitude_in),
-                    floatval($request->longitude_in),
+                    floatval($request->latitude_out),
+                    floatval($request->longitude_out),
                     floatval($currentLocationOffice->latitude),
                     floatval($currentLocationOffice->longitude)
                 );
@@ -239,47 +340,14 @@ class PresenceController extends Controller
                     ],
                     'message' => '[PRESENCE OUT] Presensi pegawai keluar berhasil disimpan',
                 ], 200);
-            } else {
-                $distanceIn = $this->calculateDistance(
-                    floatval($request->latitude_in),
-                    floatval($request->longitude_in),
-                    floatval($currentLocationOffice->latitude),
-                    floatval($currentLocationOffice->longitude)
-                );
-
-                if ($distanceIn > 100) {
-                    return response()->json([
-                        'code' => 422,
-                        'status' => 'error',
-                        'data' => [
-                            'distance' => "Jarak mu berada $distanceIn meter",
-                        ],
-                        'message' => '[PRESENCE IN] Lokasi kamu diluar jangkauan 100 meter',
-                    ], 422);
-                }
-
-                Presence::create([
-                    'uuid' => $uuid,
-                    'employee_id' => $employeeIdQuery,
-                    'clock_in' => $request->clock_in,
-                    'ip_address' => $request->ip_address,
-                    'device' => $request->device,
-                    'latitude_in' => $request->latitude_in,
-                    'longitude_in' => $request->longitude_in,
-                    'distance_in' => $distanceIn,
-                    'photo_in' => $request->photo_in,
-                    'presence_date' => $presenceDate,
-                ]);
-
-                return response()->json([
-                    'code' => 201,
-                    'status' => 'success',
-                    'data' => [
-                        'distance' => "Jarak mu berada $distanceIn meter",
-                    ],
-                    'message' => '[PRESENCE OUT] Presensi pegawai keluar berhasil disimpan',
-                ], 201);
             }
+
+            return response()->json([
+                'code' => 422,
+                'status' => 'error',
+                'data' => null,
+                'message' => 'Pegawai belum melakukan presensi masuk',
+            ], 422);
         } catch (ValidationException $e) {
             return response()->json([
                 'code' => 422,
