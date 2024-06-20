@@ -100,7 +100,9 @@ class PresenceController extends Controller
         $angle = 2 * asin(sqrt(pow(sin($latDelta / 2), 2) +
             cos($latFrom) * cos($latTo) * pow(sin($lonDelta / 2), 2)));
 
-        return round($angle * $earthRadius);
+        $distance = round($angle * $earthRadius);
+
+        return $distance;
     }
 
     public function getCurrentPresencesEmployee(string $employeeId)
@@ -193,7 +195,6 @@ class PresenceController extends Controller
             }
 
             $presenceDate = date('Y-m-d');
-            // $createdBy = auth()->user()->id;
             $uuid = Cuid::make();
 
             $checkIsAlreadyCheckIn = Presence::where('employee_id', $employeeIdQuery)
@@ -202,20 +203,22 @@ class PresenceController extends Controller
 
             if ($checkIsAlreadyCheckIn > 0) {
                 $distanceOut = $this->calculateDistance(
-                    $request->latitude_out,
-                    $request->longitude_out,
-                    $currentLocationOffice->latitude,
-                    $currentLocationOffice->longitude
+                    floatval($request->latitude_in),
+                    floatval($request->longitude_in),
+                    floatval($currentLocationOffice->latitude),
+                    floatval($currentLocationOffice->longitude)
                 );
 
-                // if ($distanceOut > 100) {
-                //     return response()->json([
-                //         'code' => 422,
-                //         'status' => 'error',
-                //         'data' => null,
-                //         'message' => 'Lokasi kamu diluar jangkauan 100 meter',
-                //     ], 422);
-                // }
+                if ($distanceOut > 100) {
+                    return response()->json([
+                        'code' => 422,
+                        'status' => 'error',
+                        'data' => [
+                            'distance' => "Jarak mu berada $distanceOut meter",
+                        ],
+                        'message' => '[PRESENCE OUT] Lokasi kamu diluar jangkauan 100 meter',
+                    ], 422);
+                }
 
                 Presence::where('employee_id', $employeeIdQuery)
                     ->where('presence_date', $presenceDate)
@@ -235,20 +238,22 @@ class PresenceController extends Controller
                 ], 200);
             } else {
                 $distanceIn = $this->calculateDistance(
-                    $request->latitude_in,
-                    $request->longitude_in,
-                    $currentLocationOffice->latitude,
-                    $currentLocationOffice->longitude
+                    floatval($request->latitude_in),
+                    floatval($request->longitude_in),
+                    floatval($currentLocationOffice->latitude),
+                    floatval($currentLocationOffice->longitude)
                 );
 
-                // if ($distanceIn > 100) {
-                //     return response()->json([
-                //         'code' => 422,
-                //         'status' => 'error',
-                //         'data' => null,
-                //         'message' => 'Lokasi kamu diluar jangkauan 100 meter',
-                //     ], 422);
-                // }
+                if ($distanceIn > 100) {
+                    return response()->json([
+                        'code' => 422,
+                        'status' => 'error',
+                        'data' => [
+                            'distance' => "Jarak mu berada $distanceIn meter",
+                        ],
+                        'message' => '[PRESENCE IN] Lokasi kamu diluar jangkauan 100 meter',
+                    ], 422);
+                }
 
                 Presence::create([
                     'uuid' => $uuid,
