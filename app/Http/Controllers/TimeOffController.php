@@ -98,7 +98,7 @@ class TimeOffController extends Controller
             $request->validate([
                 'accepted_by' => 'string',
                 'employee_id' => 'required|string',
-                'type' => 'required|in:annual,unpaid,sick_without_docs,sick_with_docs,holiday,special_permit',
+                'type' => 'required|in:cuti,sakit,lembur,tugas_keluar',
                 'start_date' => 'required|date',
                 'end_date' => 'required|date',
                 'description' => 'required|string',
@@ -216,7 +216,7 @@ class TimeOffController extends Controller
             $request->validate([
                 'accepted_by' => 'required|string',
                 'employee_id' => 'required|string',
-                'type' => 'required|in:annual,unpaid,sick_without_docs,sick_with_docs,holiday,special_permit',
+                'type' => 'required|in:cuti,sakit,lembur,tugas_keluar',
                 'start_date' => 'required|date',
                 'end_date' => 'required|date',
                 'description' => 'required|string',
