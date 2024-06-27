@@ -15,9 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->index()->unique();
             $table->enum('type', [
-                'annual', 'sick_without_docs',
-                'sick_with_docs', 'holiday', 'unpaid',
-                'special_permit'
+                'cuti', 'sakit', 'lembur', 'tugas_keluar'
             ]);
             $table->date('start_date');
             $table->date('end_date');
