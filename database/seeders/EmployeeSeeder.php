@@ -20,7 +20,7 @@ class EmployeeSeeder extends Seeder
             [
                 'id' => 1,
                 'uuid' => 'clvsssbqo0001cuglboduvoc4',
-                'fullname' => 'Jack Sparrow',
+                'fullname' => 'Owner Perusahaan',
                 'gender' => 'laki-laki',
                 'position' => 'owner',
                 'phone_number' => Text::formatPhoneNumber('087887556644'),
@@ -43,19 +43,6 @@ class EmployeeSeeder extends Seeder
                 'joined_company_at' => now(),
                 'status' => 'active'
             ],
-            [
-                'id' => 3,
-                'uuid' => 'clvsssbqo0001cuglboduvoc6',
-                'fullname' => 'Ketut Sujana',
-                'gender' => 'laki-laki',
-                'position' => 'mechanic',
-                'phone_number' => Text::formatPhoneNumber('089889339223'),
-                'employee_code' => Text::generateIdCardNumber(),
-                'avatar' => null,
-                'address' => 'Jl. Raya No. 1, Jakarta',
-                'joined_company_at' => now(),
-                'status' => 'active'
-            ]
         ];
 
         foreach ($employeeData as $employee) {
