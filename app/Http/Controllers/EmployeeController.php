@@ -118,7 +118,7 @@ class EmployeeController extends Controller
     {
         try {
             $request->validate([
-                'file' => 'required|file|mimes:jpeg,jpg,png|max:3072'
+                'file' => 'required'
             ]);
 
             $file = $request->file('file');
@@ -127,7 +127,7 @@ class EmployeeController extends Controller
                 ? $file->storeAs('public/photos/employee', "{$fileName}.{$file->extension()}")
                 : null;
 
-            $baseUrl = url(Storage::url($resultFile));
+            $baseUrl = Storage::url($resultFile);
 
             return response()->json([
                 'code' => 200,

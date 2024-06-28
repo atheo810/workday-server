@@ -53,16 +53,17 @@ class TimeOffController extends Controller
     {
         try {
             $request->validate([
-                'file' => 'required|file|mimes:pdf,jpeg,jpg,png|max:10240',
+                'file' => 'required'
             ]);
 
             $file = $request->file('file');
+
             $fileName = Cuid::make();
             $resultFile = $file
-                ? $file->storeAs('public/photos/employee-timeoff', "{$fileName}.{$file->extension()}")
+                ? $file->storeAs('photos/employee-timeoff', "{$fileName}.{$file->extension()}")
                 : null;
 
-            $baseUrl = url(Storage::url($resultFile));
+            $baseUrl = Storage::url($resultFile);
 
             return response()->json([
                 'code' => 200,

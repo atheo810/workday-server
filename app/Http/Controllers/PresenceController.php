@@ -19,16 +19,17 @@ class PresenceController extends Controller
     {
         try {
             $request->validate([
-                'file' => 'required|file|mimes:jpeg,jpg,png|max:10240'
+                'file' => 'required'
             ]);
 
             $file = $request->file('file');
+
             $fileName = Cuid::make();
             $resultFile = $file
-                ? $file->storeAs('public/photos/presence', "{$fileName}.{$file->extension()}")
+                ? $file->storeAs('photos/presence', "{$fileName}.{$file->extension()}")
                 : null;
 
-            $baseUrl = url(Storage::url($resultFile));
+            $baseUrl = Storage::url($resultFile);
 
             return response()->json([
                 'code' => 200,
