@@ -60,18 +60,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::apiResource('/location-office', LocationOfficeController::class)->except([
             'update'
         ]);
-
-        // ============ *** TIMEOFF OFFICES *** ============
-        Route::apiResource('timeoff', TimeOffController::class)->except([
-            'create', 'edit', 'update'
-        ]);
-        Route::patch('/timeoff/{timeoff}', [TimeOffController::class, 'update'])->name('timeoff.update');
-        Route::put('validate-status/timeoff/{timeoff}', [TimeOffController::class, 'validateStatusTimeOff'])->name('timeoff.validate-status');
-
-        Route::post('/upload/timeoff', [TimeOffController::class, 'uploadFile'])->name('time-off.upload-file');
     });
 
-    Route::middleware(['check.role:administrator,owner,head-machanic,mechanic,cleaner,office-boy,security'])->group(function () {
+    Route::middleware(['check.role:administrator,owner,head-mechanic,mechanic,cleaner,office-boy,security'])->group(function () {
         Route::patch('/is-signed/{user_id}', [UserController::class, 'isSigned'])->name('user.is-signed');
 
         // ============ *** EMPLOYEE PRESENCE *** ============
@@ -82,6 +73,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/presence/out', [PresenceController::class, 'employeePresencesOut'])->name('employee.presences.out');
 
         Route::get('/presence/check/{presence_id}', [PresenceController::class, 'getCurrentPresencesEmployee'])->name('employee.current-presences');
+
+        // ============ *** TIMEOFF OFFICES *** ============
+        Route::apiResource('timeoff', TimeOffController::class)->except([
+            'create', 'edit', 'update'
+        ]);
+        Route::patch('/timeoff/{timeoff}', [TimeOffController::class, 'update'])->name('timeoff.update');
+        Route::put('validate-status/timeoff/{timeoff}', [TimeOffController::class, 'validateStatusTimeOff'])->name('timeoff.validate-status');
+
+        Route::post('/upload/timeoff', [TimeOffController::class, 'uploadFile'])->name('time-off.upload-file');
 
         // ============ *** RECAP PRESENCE *** ============
         Route::get('/recap-presence/all', [PresenceController::class, 'recapEmployeePresence'])->name('recap-presence.employee.all');

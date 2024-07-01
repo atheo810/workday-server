@@ -67,7 +67,7 @@
                     style="display: inline-block; height: 100px; object-fit: contain;" alt="Bengker eurocar" />
             </div>
 
-            <center><b class="uppercase" style="font-size: 18px;">PT Bengkel</b></center>
+            <center><b class="uppercase" style="font-size: 18px;">Eurocar Service</b></center>
 
             <hr>
             <hr style="margin-top: 0.2%; margin-bottom: 0%;">
