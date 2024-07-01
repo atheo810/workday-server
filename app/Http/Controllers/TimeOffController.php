@@ -90,14 +90,16 @@ class TimeOffController extends Controller
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    public function createTimeoffToFirebase($payload, string $uuid)
+    {
+        $timeoffRef = app('firebase.firestore')->database()->collection('timeoff')->document($uuid);
+        $timeoffRef->set($payload);
+    }
+
     public function store(Request $request)
     {
         try {
             $request->validate([
-                'accepted_by' => 'string',
                 'employee_id' => 'required|string',
                 'type' => 'required|in:cuti,sakit,lembur,tugas_keluar',
                 'start_date' => 'required|date',
@@ -125,9 +127,21 @@ class TimeOffController extends Controller
                 ], 422);
             }
 
+            $uuid = Cuid::make();
             $totalDays = $endDate->diffInDays($startDate) + 1;
 
-            $uuid = Cuid::make();
+            $this->createTimeoffToFirebase([
+                'uuid' => $uuid,
+                'employee_id' => $request->employee_id,
+                'type' => $request->type,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
+                'description' => $request->description,
+                'total_days' => $totalDays,
+                'timeoff_created_at' => now(),
+                'status' => 'pending',
+            ], $uuid);
+
             TimeOff::create([
                 'uuid' => $uuid,
                 'employee_id' => $request->employee_id,
@@ -137,6 +151,7 @@ class TimeOffController extends Controller
                 'end_date' => $request->end_date,
                 'description' => $request->description,
                 'document' => $request->document,
+                'timeoff_created_at' => now(),
                 'total_days' => $totalDays,
             ]);
 
@@ -307,6 +322,11 @@ class TimeOffController extends Controller
                     'data' => null,
                 ], 404);
             }
+
+            $timeoffRef = app('firebase.firestore')->database()->collection('timeoff')->document($uuid);
+            $timeoffRef->update([
+                ['path' => 'status', 'value' => $request->status]
+            ]);
 
             $timeOff->update([
                 'status' => $request->status,
