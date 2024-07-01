@@ -33,7 +33,7 @@ class DashboardController extends Controller
             $employees = Employee::all()->where('is_deleted', false)->count();
             $presence = $currentDate ? Presence::where('presence_date', $currentDate)->count() : Presence::all()->count();
             $timeoff = $currentDate ? TimeOff::where('timeoff_created_at', $currentDate)->where('status', 'approved')->count() : TimeOff::all()->count();
-            $timeoffAll = TimeOff::all()->count();
+            $timeoffAll = TimeOff::all()->where('status', 'approved')->count();
             $timeoffPending = TimeOff::where('status', 'pending')->count();
 
             $resource = [
