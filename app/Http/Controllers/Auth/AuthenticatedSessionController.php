@@ -36,7 +36,7 @@ class AuthenticatedSessionController extends Controller
 
             $user = User::where('email', $credentials['email'])->first();
 
-            $user->tokens()->delete();
+            // $user->tokens()->delete();
             $generateToken = $user->createToken(
                 name: $user->uuid,
                 expiresAt: now()->addDay(1)
