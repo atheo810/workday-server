@@ -108,7 +108,7 @@
             <p style="margin-top: 10px; margin-bottom: 5px; font-size: 20px; font-weight: 400;">Note</p>
             <table>
                 <tr>
-                    <td>Jumlah absensi : </td>
+                    <td>Jumlah cuti : </td>
                     <td>
                         @php
                         $time_off_count = 0;
