@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Employee;
 use App\Models\TimeOff;
 use CaliCastle\Cuid;
 use Carbon\Carbon;
@@ -130,9 +131,12 @@ class TimeOffController extends Controller
             $uuid = Cuid::make();
             $totalDays = $endDate->diffInDays($startDate) + 1;
 
+            $findEmployee = Employee::where('uuid', $request->employee_id)->first();
+
             $this->createTimeoffToFirebase([
                 'uuid' => $uuid,
                 'employee_id' => $request->employee_id,
+                'employee_name' => $findEmployee->fullname ?? '-',
                 'type' => $request->type,
                 'start_date' => $request->start_date,
                 'end_date' => $request->end_date,
